@@ -1,6 +1,6 @@
-# AlgoViz: Interactive Data Structures & Algorithms Visualizer
+# dsa_algo: Interactive Data Structures & Algorithms Visualizer
 
-AlgoViz is a breathtaking, interactive visualizer designed to help you master Data Structures and Algorithms intuitively. Featuring a stunning **Liquid Glassmorphism** dark theme, procedural WebGL background rendering, and step-by-step interactive animations.
+dsa_algo is a breathtaking, interactive visualizer designed to help you master Data Structures and Algorithms intuitively. Featuring a stunning **Liquid Glassmorphism** dark theme, procedural WebGL background rendering, and step-by-step interactive animations.
 
 ## Features
 
