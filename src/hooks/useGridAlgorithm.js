@@ -11,6 +11,7 @@ export function useGridAlgorithm(generatorFn, rawGrid, ...extraArgs) {
   const [currentGrid, setCurrentGrid] = useState([]);
   const [stepDescription, setStepDescription] = useState('');
   const [algorithmData, setAlgorithmData] = useState({});
+  const [currentLine, setCurrentLine] = useState(-1);
 
   const generatorRef = useRef(null);
   const historyRef = useRef([]);
@@ -42,6 +43,7 @@ export function useGridAlgorithm(generatorFn, rawGrid, ...extraArgs) {
     setCurrentStep(0);
     setStepDescription('');
     setAlgorithmData({});
+    setCurrentLine(-1);
     initGrid();
   }, [generatorFn, rawGrid, extraArgs, initGrid]);
 
@@ -50,6 +52,7 @@ export function useGridAlgorithm(generatorFn, rawGrid, ...extraArgs) {
     if (step.grid) setCurrentGrid(step.grid);
     setStepDescription(step.description || '');
     setAlgorithmData(step.data || {});
+    setCurrentLine(step.line ?? -1);
   }, []);
 
   const doStep = useCallback(() => {
@@ -106,7 +109,7 @@ export function useGridAlgorithm(generatorFn, rawGrid, ...extraArgs) {
     const idx = currentStepRef.current;
     if (idx <= 0) return;
     const target = idx - 1;
-    if (target === 0) { initGrid(); setStepDescription(''); setAlgorithmData({}); }
+    if (target === 0) { initGrid(); setStepDescription(''); setAlgorithmData({}); setCurrentLine(-1); }
     else applyStep(historyRef.current[target - 1]);
     currentStepRef.current = target;
     setCurrentStep(target);
@@ -120,7 +123,7 @@ export function useGridAlgorithm(generatorFn, rawGrid, ...extraArgs) {
   return {
     play, pause, stepForward, stepBack, reset,
     isPlaying, currentStep, totalSteps: historyRef.current.length,
-    speed, setSpeed, currentGrid, stepDescription, algorithmData,
+    speed, setSpeed, currentGrid, stepDescription, algorithmData, currentLine,
   };
 }
 

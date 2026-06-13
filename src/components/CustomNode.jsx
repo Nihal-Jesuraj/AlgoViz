@@ -14,33 +14,37 @@ function CustomNode({ data, id }) {
   const status = data?.status || 'default';
   const statusClass = statusClassMap[status] || 'node-default';
   const isMst = status === 'in-mst';
+  const isEditing = data?.isEditing || false;
+  const isAddEdgeMode = isEditing && data?.editorMode === 'addEdge';
 
   return (
-    <div className="relative flex flex-col items-center" id={`node-${id}`}>
-      {/* Connection handles */}
+    <div className="relative flex flex-col items-center group" id={`node-${id}`}>
+      {/* Target handle - placed in center for edges to route to center */}
       <Handle
         type="target"
         position={Position.Top}
-        id={`${id}-target-top`}
-        className="!opacity-0 hover:!opacity-100"
-      />
-      <Handle
-        type="target"
-        position={Position.Left}
-        id={`${id}-target-left`}
-        className="!opacity-0 hover:!opacity-100"
+        id="target"
+        className="!w-2 !h-2 !top-1/2 !left-1/2 !-translate-x-1/2 !-translate-y-1/2 !opacity-0 !border-none"
       />
 
       {/* Node circle */}
       <div
         className={`graph-node ${statusClass} ${
           isMst ? '!border-[3px] !border-accent-teal-dark' : ''
-        }`}
+        } ${isEditing ? 'hover:shadow-glass-elevated' : ''} relative z-10`}
       >
         <span className="font-heading font-semibold text-[15px] leading-none">
           {data?.label ?? id}
         </span>
       </div>
+
+      {/* Source handle - small center dot for dragging out */}
+      <Handle
+        type="source"
+        position={Position.Bottom}
+        id="source"
+        className={`!w-4 !h-4 !bg-accent-purple !border-2 !border-white !top-[calc(50%+20px)] !left-1/2 !-translate-x-1/2 transition-all duration-200 ${isAddEdgeMode ? '!opacity-100 hover:!scale-125 z-20' : '!opacity-0 !pointer-events-none'}`}
+      />
 
       {/* Distance / weight label */}
       {data?.distance !== undefined && data.distance !== null && (
@@ -48,20 +52,6 @@ function CustomNode({ data, id }) {
           d={data.distance === Infinity ? '∞' : data.distance}
         </div>
       )}
-
-      {/* Source handles */}
-      <Handle
-        type="source"
-        position={Position.Bottom}
-        id={`${id}-source-bottom`}
-        className="!opacity-0 hover:!opacity-100"
-      />
-      <Handle
-        type="source"
-        position={Position.Right}
-        id={`${id}-source-right`}
-        className="!opacity-0 hover:!opacity-100"
-      />
     </div>
   );
 }

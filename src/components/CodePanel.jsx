@@ -41,21 +41,22 @@ function CodePanel({ code = '', language = 'java', currentLine = -1, title = 'Co
             <pre className={className} style={{ ...style, background: 'transparent' }}>
               {tokens.map((line, i) => {
                 const isActive = i === currentLine;
-                const lineProps = getLineProps({ line, key: i });
+                const { key: lineKey, ...restLineProps } = getLineProps({ line, key: i });
 
                 return (
                   <div
-                    key={i}
-                    {...lineProps}
+                    key={lineKey || i}
+                    {...restLineProps}
                     ref={isActive ? activeLineRef : null}
                     className={`code-line ${isActive ? 'active-line' : ''}`}
                     id={`code-line-${i}`}
                   >
                     <span className="code-line-number">{i + 1}</span>
                     <span className="flex-1 whitespace-pre">
-                      {line.map((token, key) => (
-                        <span key={key} {...getTokenProps({ token, key })} />
-                      ))}
+                      {line.map((token, key) => {
+                        const { key: tokenKey, ...restTokenProps } = getTokenProps({ token, key });
+                        return <span key={tokenKey || key} {...restTokenProps} />;
+                      })}
                     </span>
                   </div>
                 );

@@ -2,7 +2,13 @@ import React, { memo, useRef } from 'react';
 import { motion } from 'framer-motion';
 import { Network, GitGraph, Palette, ImagePlus } from 'lucide-react';
 
-function Navbar({ problemTitle = 'DSA Algorithm Visualizer', algorithmName = '', onCycleTheme, onImageUpload }) {
+function Navbar({ 
+  problemTitle = 'DSA Algorithm Visualizer', 
+  algorithmName = '', 
+  onCycleTheme, 
+  onImageUpload,
+  overallProgress = { completed: 0, total: 0, percentage: 0 }
+}) {
   const fileInputRef = useRef(null);
 
   const handleImageChange = (e) => {
@@ -22,14 +28,36 @@ function Navbar({ problemTitle = 'DSA Algorithm Visualizer', algorithmName = '',
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
     >
-      {/* Left — Logo */}
-      <div className="flex items-center gap-2.5">
-        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent-purple to-accent-purple-light text-white">
-          <Network size={18} strokeWidth={2.5} />
+      {/* Left — Logo & Progress Badge */}
+      <div className="flex items-center gap-4">
+        <div className="flex items-center gap-2.5">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-gradient-to-br from-accent-purple to-accent-purple-light text-white">
+            <Network size={18} strokeWidth={2.5} />
+          </div>
+          <span className="font-heading font-bold text-[17px] tracking-tight text-[var(--color-text)]">
+            AlgoViz
+          </span>
         </div>
-        <span className="font-heading font-bold text-[17px] tracking-tight text-[var(--color-text)]">
-          AlgoViz
-        </span>
+        
+        {/* Overall Progress Badge */}
+        {overallProgress.total > 0 && (
+          <div className="flex items-center gap-2 px-2.5 py-1 rounded-full bg-black/20 border border-white/5 shadow-inner">
+             {/* Simple circular progress ring */}
+             <div className="relative w-5 h-5 flex items-center justify-center">
+               <svg className="w-5 h-5 transform -rotate-90">
+                 <circle cx="10" cy="10" r="8" stroke="rgba(255,255,255,0.1)" strokeWidth="2.5" fill="none" />
+                 <circle cx="10" cy="10" r="8" stroke="#10B981" strokeWidth="2.5" fill="none" 
+                   strokeDasharray="50.2" 
+                   strokeDashoffset={50.2 - (50.2 * overallProgress.percentage) / 100} 
+                   className="transition-all duration-500 ease-out"
+                 />
+               </svg>
+             </div>
+             <div className="flex flex-col">
+               <span className="text-[10px] font-mono leading-none text-white/80">{overallProgress.completed}/{overallProgress.total}</span>
+             </div>
+          </div>
+        )}
       </div>
 
       {/* Center — Problem title + Algorithm name */}
@@ -77,7 +105,7 @@ function Navbar({ problemTitle = 'DSA Algorithm Visualizer', algorithmName = '',
         )}
         <a
           id="github-link"
-          href="https://github.com"
+          href="https://github.com/Nihal-Jesuraj/AlgoViz"
           target="_blank"
           rel="noopener noreferrer"
           className="glass-button !p-2 !rounded-lg hover:!shadow-purple-glow"

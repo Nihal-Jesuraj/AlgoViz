@@ -1,162 +1,83 @@
-// Preset graph configurations for all Phase 1 problems.
-// Each preset is keyed by the problem's presetGraphKey.
-// Positions are designed for a ~700×500 canvas to avoid overlaps.
+import { parseLeetCodeFormat } from '../utils/graphInputParser';
+import { getLayoutedElements } from '../utils/LayoutManager';
+
+function createPreset(inputStr, isDirected = false, isWeighted = false, startNode = '0') {
+  try {
+    const data = parseLeetCodeFormat(inputStr);
+    data.directed = isDirected;
+    data.weighted = isWeighted;
+    data.startNode = startNode;
+    
+    // Auto-layout the graph using Dagre
+    if (data.nodes && data.nodes.length > 0) {
+      data.nodes = getLayoutedElements(data.nodes, data.edges, 'TB', isDirected);
+    }
+    return data;
+  } catch (e) {
+    console.error("Failed to parse preset:", e);
+    return { nodes: [], edges: [], directed: isDirected, weighted: isWeighted, startNode };
+  }
+}
 
 export const presetGraphs = {
-  /* ─── BFS basic: 7-node undirected graph ─── */
-  'bfs-basic': {
-    nodes: [
-      { id: '0', position: { x: 300, y: 30 },  data: { label: '0' } },
-      { id: '1', position: { x: 150, y: 130 }, data: { label: '1' } },
-      { id: '2', position: { x: 450, y: 130 }, data: { label: '2' } },
-      { id: '3', position: { x: 75,  y: 250 }, data: { label: '3' } },
-      { id: '4', position: { x: 225, y: 250 }, data: { label: '4' } },
-      { id: '5', position: { x: 375, y: 250 }, data: { label: '5' } },
-      { id: '6', position: { x: 525, y: 250 }, data: { label: '6' } },
-    ],
-    edges: [
-      { id: 'e0-1', source: '0', target: '1', data: {} },
-      { id: 'e0-2', source: '0', target: '2', data: {} },
-      { id: 'e1-3', source: '1', target: '3', data: {} },
-      { id: 'e1-4', source: '1', target: '4', data: {} },
-      { id: 'e2-5', source: '2', target: '5', data: {} },
-      { id: 'e2-6', source: '2', target: '6', data: {} },
-      { id: 'e3-4', source: '3', target: '4', data: {} },
-      { id: 'e5-6', source: '5', target: '6', data: {} },
-    ],
-    directed: false,
-    weighted: false,
-    startNode: '0',
-  },
-
-  /* ─── DFS basic: 7-node undirected graph (deeper structure) ─── */
-  'dfs-basic': {
-    nodes: [
-      { id: '0', position: { x: 300, y: 30 },  data: { label: '0' } },
-      { id: '1', position: { x: 150, y: 130 }, data: { label: '1' } },
-      { id: '2', position: { x: 450, y: 130 }, data: { label: '2' } },
-      { id: '3', position: { x: 75,  y: 250 }, data: { label: '3' } },
-      { id: '4', position: { x: 225, y: 250 }, data: { label: '4' } },
-      { id: '5', position: { x: 375, y: 250 }, data: { label: '5' } },
-      { id: '6', position: { x: 525, y: 250 }, data: { label: '6' } },
-    ],
-    edges: [
-      { id: 'e0-1', source: '0', target: '1', data: {} },
-      { id: 'e0-2', source: '0', target: '2', data: {} },
-      { id: 'e1-3', source: '1', target: '3', data: {} },
-      { id: 'e1-4', source: '1', target: '4', data: {} },
-      { id: 'e2-5', source: '2', target: '5', data: {} },
-      { id: 'e2-6', source: '2', target: '6', data: {} },
-      { id: 'e4-5', source: '4', target: '5', data: {} },
-    ],
-    directed: false,
-    weighted: false,
-    startNode: '0',
-  },
-
-  /* ─── Cycle detection undirected: 6-node graph WITH a cycle ─── */
-  'cycle-undirected': {
-    nodes: [
-      { id: '0', position: { x: 100, y: 50 },  data: { label: '0' } },
-      { id: '1', position: { x: 300, y: 50 },  data: { label: '1' } },
-      { id: '2', position: { x: 500, y: 50 },  data: { label: '2' } },
-      { id: '3', position: { x: 100, y: 250 }, data: { label: '3' } },
-      { id: '4', position: { x: 300, y: 250 }, data: { label: '4' } },
-      { id: '5', position: { x: 500, y: 250 }, data: { label: '5' } },
-    ],
-    edges: [
-      { id: 'e0-1', source: '0', target: '1', data: {} },
-      { id: 'e1-2', source: '1', target: '2', data: {} },
-      { id: 'e0-3', source: '0', target: '3', data: {} },
-      { id: 'e3-4', source: '3', target: '4', data: {} },
-      { id: 'e4-5', source: '4', target: '5', data: {} },
-      { id: 'e2-5', source: '2', target: '5', data: {} },
-      // This edge creates the cycle: 1-4 forms cycle 0-1-4-3-0
-      { id: 'e1-4', source: '1', target: '4', data: {} },
-    ],
-    directed: false,
-    weighted: false,
-    startNode: '0',
-  },
-
-  /* ─── Dijkstra: 6-node weighted undirected graph ─── */
-  'dijkstra-weighted': {
-    nodes: [
-      { id: '0', position: { x: 80,  y: 150 }, data: { label: '0' } },
-      { id: '1', position: { x: 250, y: 50 },  data: { label: '1' } },
-      { id: '2', position: { x: 250, y: 270 }, data: { label: '2' } },
-      { id: '3', position: { x: 430, y: 50 },  data: { label: '3' } },
-      { id: '4', position: { x: 430, y: 270 }, data: { label: '4' } },
-      { id: '5', position: { x: 600, y: 150 }, data: { label: '5' } },
-    ],
-    edges: [
-      { id: 'e0-1', source: '0', target: '1', data: { weight: 4 } },
-      { id: 'e0-2', source: '0', target: '2', data: { weight: 1 } },
-      { id: 'e1-3', source: '1', target: '3', data: { weight: 1 } },
-      { id: 'e2-1', source: '2', target: '1', data: { weight: 2 } },
-      { id: 'e2-4', source: '2', target: '4', data: { weight: 5 } },
-      { id: 'e3-5', source: '3', target: '5', data: { weight: 3 } },
-      { id: 'e4-3', source: '4', target: '3', data: { weight: 3 } },
-      { id: 'e4-5', source: '4', target: '5', data: { weight: 1 } },
-    ],
-    directed: false,
-    weighted: true,
-    startNode: '0',
-  },
-
-  /* ─── Bellman-Ford: 5-node weighted directed graph ─── */
-  'bellman-ford-weighted': {
-    nodes: [
-      { id: '0', position: { x: 80,  y: 150 }, data: { label: '0' } },
-      { id: '1', position: { x: 250, y: 50 },  data: { label: '1' } },
-      { id: '2', position: { x: 250, y: 270 }, data: { label: '2' } },
-      { id: '3', position: { x: 450, y: 50 },  data: { label: '3' } },
-      { id: '4', position: { x: 450, y: 270 }, data: { label: '4' } },
-    ],
-    edges: [
-      { id: 'e0-1', source: '0', target: '1', data: { weight: 6 } },
-      { id: 'e0-2', source: '0', target: '2', data: { weight: 7 } },
-      { id: 'e1-3', source: '1', target: '3', data: { weight: 5 } },
-      { id: 'e1-2', source: '1', target: '2', data: { weight: 8 } },
-      { id: 'e1-4', source: '1', target: '4', data: { weight: -4 } },
-      { id: 'e2-3', source: '2', target: '3', data: { weight: -3 } },
-      { id: 'e2-4', source: '2', target: '4', data: { weight: 9 } },
-      { id: 'e3-1', source: '3', target: '1', data: { weight: -2 } },
-      { id: 'e4-3', source: '4', target: '3', data: { weight: 7 } },
-    ],
-    directed: true,
-    weighted: true,
-    startNode: '0',
-  },
-
-  /* ─── MST graph: 7-node weighted undirected (shared by Prim & Kruskal) ─── */
-  'mst-graph': {
-    nodes: [
-      { id: '0', position: { x: 300, y: 30 },  data: { label: '0' } },
-      { id: '1', position: { x: 130, y: 130 }, data: { label: '1' } },
-      { id: '2', position: { x: 470, y: 130 }, data: { label: '2' } },
-      { id: '3', position: { x: 60,  y: 270 }, data: { label: '3' } },
-      { id: '4', position: { x: 230, y: 270 }, data: { label: '4' } },
-      { id: '5', position: { x: 380, y: 270 }, data: { label: '5' } },
-      { id: '6', position: { x: 540, y: 270 }, data: { label: '6' } },
-    ],
-    edges: [
-      { id: 'e0-1', source: '0', target: '1', data: { weight: 2 } },
-      { id: 'e0-2', source: '0', target: '2', data: { weight: 6 } },
-      { id: 'e1-2', source: '1', target: '2', data: { weight: 8 } },
-      { id: 'e1-3', source: '1', target: '3', data: { weight: 5 } },
-      { id: 'e1-4', source: '1', target: '4', data: { weight: 7 } },
-      { id: 'e2-4', source: '2', target: '4', data: { weight: 9 } },
-      { id: 'e2-5', source: '2', target: '5', data: { weight: 3 } },
-      { id: 'e2-6', source: '2', target: '6', data: { weight: 4 } },
-      { id: 'e3-4', source: '3', target: '4', data: { weight: 1 } },
-      { id: 'e5-6', source: '5', target: '6', data: { weight: 2 } },
-      { id: 'e4-5', source: '4', target: '5', data: { weight: 4 } },
-    ],
-    directed: false,
-    weighted: true,
-    startNode: '0',
-  },
+  // GFG BFS Testcase 1
+  'bfs-basic': createPreset('[[2, 3, 1], [0], [0, 4], [0], [2]]', false, false),
+  
+  // GFG DFS Testcase 1
+  'dfs-basic': createPreset('[[1, 2], [0, 2], [0, 1, 3, 4], [2], [2]]', false, false),
+  
+  // Cycle in Undirected (GFG Testcase)
+  'cycle-undirected': createPreset('[[1], [0, 2, 4], [1, 3], [2, 4], [1, 3]]', false, false),
+  
+  // Dijkstra / Bellman Ford / Shortest Path
+  'dijkstra-weighted': createPreset('[[0,1,4], [0,2,4], [1,2,2], [1,0,4], [2,0,4], [2,1,2], [2,3,3], [2,4,1], [2,5,6], [3,2,3], [3,5,2], [4,2,1], [4,5,3], [5,2,6], [5,3,2], [5,4,3]]', false, true),
+  
+  'bellman-ford-weighted': createPreset('[[0,1,5], [1,2,-2], [1,5,-3], [2,4,3], [3,2,6], [3,4,-2], [4,5,2]]', true, true),
+  
+  // MST / Kruskal / Prim (Standard 6-node weighted)
+  'mst-graph': createPreset('[[0,1,2], [0,3,1], [0,4,4], [1,2,3], [1,3,3], [1,5,7], [2,3,5], [2,5,8], [3,4,9]]', false, true),
+  
+  // Bipartite Graph
+  'bipartite': createPreset('[[1,3], [0,2], [1,3], [0,2]]', false, false),
+  
+  // Directed Cycle
+  'cycle-directed': createPreset('[[1], [2], [3, 4], [1], []]', true, false),
+  
+  // Topological Sort DAG
+  'topo-sort': createPreset('[[], [], [3], [1], [0, 1], [0, 2]]', true, false),
+  
+  // Eventual Safe States
+  'safe-states': createPreset('[[1, 2], [2, 3], [5], [0], [5], [], []]', true, false),
+  
+  // Word Ladder (Unweighted)
+  'word-ladder': createPreset('[[1,2], [0,3], [0,3], [1,2,4], [3]]', false, false),
+  
+  // Alien Dictionary
+  'alien-dict': createPreset('[[1,2], [3], [4], [4], []]', true, false),
+  
+  // DAG Shortest Path
+  'dag-shortest': createPreset('[[0,1,2], [0,2,4], [1,2,1], [1,3,7], [2,4,3], [3,5,1], [4,3,2], [4,5,5]]', true, true),
+  
+  // Floyd Warshall
+  'floyd-warshall': createPreset('[[0,1,3], [0,2,8], [0,4,-4], [1,3,1], [1,4,7], [2,1,4], [3,0,2], [3,2,-5], [4,3,6]]', true, true),
+  
+  // DSU Basic
+  'dsu-basic': createPreset('[[0,1], [1,2], [2,3], [4,5], [5,6]]', false, false),
+  
+  // SCC (Tarjan / Kosaraju)
+  'scc-graph': createPreset('[[1], [2], [0,3], [4], [5], [3,6], [7], [6]]', true, false),
+  
+  // Bridges and Articulation Points
+  'bridges-graph': createPreset('[[1,2], [0,2], [0,1,3], [2,4], [3,5], [4,6], [5]]', false, false),
+  
+  // Euler Graph
+  'euler-graph': createPreset('[[1,2,3,4], [0,2], [0,1], [0,4], [0,3]]', false, false),
+  
+  // Shortest Path with Unit Weights
+  'shortest-unit': createPreset('[[0,1], [0,3], [1,2], [3,4], [2,4], [4,5]]', false, false),
 };
+
+// Aliases
+presetGraphs['mst-weighted'] = presetGraphs['mst-graph'];
 
 export default presetGraphs;

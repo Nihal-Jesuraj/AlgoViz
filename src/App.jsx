@@ -9,14 +9,19 @@ import GraphCanvas from './components/GraphCanvas';
 import ControlsBar from './components/ControlsBar';
 import StatePanel from './components/StatePanel';
 import LiquidGlassBackground, { themeIds } from './components/LiquidGlassBackground';
+import GraphEditorToolbar from './components/GraphEditorToolbar';
+import GraphInputModal from './components/GraphInputModal';
 
 import { problems } from './data/problems';
-import { presetGraphs } from './data/presetGraphs';
+import presetGraphs from './data/presetGraphs';
+import { getLayoutedElements } from './utils/LayoutManager';
+import { parseLeetCodeFormat } from './utils/graphInputParser';
 import { presetGrids } from './data/presetGrids';
 import { algorithms } from './algorithms/index';
 import { useAlgorithm } from './hooks/useAlgorithm';
 import { useGridAlgorithm } from './hooks/useGridAlgorithm';
 import { useGraphEditor } from './hooks/useGraphEditor';
+import { useProgress } from './hooks/useProgress';
 import GridCanvas from './components/GridCanvas';
 
 function App() {
@@ -27,6 +32,15 @@ function App() {
   const [codePanelWidth, setCodePanelWidth] = useState(380);
   const [bgThemeId, setBgThemeId] = useState('nebula');
   const [bgImage, setBgImage] = useState(null);
+  const [isInputModalOpen, setIsInputModalOpen] = useState(false);
+
+  // Progress tracking
+  const {
+    completedProblems,
+    toggleCompleted,
+    getSectionProgress,
+    getOverallProgress,
+  } = useProgress();
 
   const handleCycleTheme = useCallback(() => {
     setBgThemeId((prev) => {
@@ -82,22 +96,42 @@ function App() {
     [selectedProblemId]
   );
 
-  const preset = useMemo(
-    () => presetGraphs[selectedProblem?.presetGraphKey] || null,
-    [selectedProblem]
-  );
-
-  const presetGrid = useMemo(
-    () => presetGrids[selectedProblem?.presetGridKey] || null,
-    [selectedProblem]
-  );
-
   const algorithmDef = useMemo(
     () => algorithms[selectedProblem?.algorithmKey] || null,
     [selectedProblem]
   );
 
   const isGrid = algorithmDef?.isGrid || false;
+
+  const preset = useMemo(() => {
+    if (isGrid) return null;
+    
+    // If problem has its own scraped testcase input, generate it dynamically!
+    if (selectedProblem?.input) {
+      try {
+        const data = parseLeetCodeFormat(selectedProblem.input);
+        // Default to undirected unless specified otherwise
+        data.directed = selectedProblem.isDirected || false; 
+        data.weighted = selectedProblem.isWeighted || false;
+        data.startNode = '0';
+        
+        if (data.nodes && data.nodes.length > 0) {
+          data.nodes = getLayoutedElements(data.nodes, data.edges, 'TB', data.directed);
+        }
+        return data;
+      } catch (e) {
+        console.error("Failed to parse problem input:", e);
+      }
+    }
+    
+    if (!selectedProblem?.presetGraphKey) return null;
+    return presetGraphs[selectedProblem.presetGraphKey];
+  }, [selectedProblem, isGrid]);
+
+  const presetGrid = useMemo(
+    () => presetGrids[selectedProblem?.presetGridKey] || null,
+    [selectedProblem]
+  );
 
   // Ensure nodes/edges have `type: 'custom'`
   const presetNodes = useMemo(() => {
@@ -122,29 +156,63 @@ function App() {
   const {
     nodes,
     edges,
-    setNodes,
-    setEdges,
     onNodesChange,
     onEdgesChange,
     onConnect,
-    getAdjacencyList,
+    editorMode,
+    setEditorMode,
+    isEditing,
+    toggleEditing,
+    isDirected,
+    setIsDirected,
+    isWeighted,
+    setIsWeighted,
+    toggleDirected,
+    toggleWeighted,
+    addNodeAtPosition,
+    onNodesDelete,
+    onEdgesDelete,
+    editingEdgeId,
+    updateEdgeWeight,
+    startEditingEdge,
+    cancelEditingEdge,
+    undo,
+    redo,
+    canUndo,
+    canRedo,
     resetGraph,
+    loadGraph,
+    getGraphData,
+    clearGraph,
+    getAdjacencyList,
+    nodeCount,
+    edgeCount,
+    setNodes,
   } = useGraphEditor(!isGrid ? presetNodes : [], !isGrid ? presetEdges : []);
+
+  const handleAutoLayout = useCallback(() => {
+    import('./utils/LayoutManager').then(({ getLayoutedElements }) => {
+      const layoutedNodes = getLayoutedElements(nodes, edges, 'TB', isDirected);
+      setNodes(layoutedNodes);
+    });
+  }, [nodes, edges, isDirected, setNodes]);
 
   // Reset graph when problem changes
   useEffect(() => {
     if (!isGrid && presetNodes.length > 0) {
       resetGraph(presetNodes, presetEdges);
+      setIsDirected(preset?.directed || false);
+      setIsWeighted(preset?.weighted || false);
     }
-  }, [selectedProblemId, isGrid, presetNodes, presetEdges, resetGraph]);
+  }, [selectedProblemId, isGrid, presetNodes, presetEdges, resetGraph, setIsDirected, setIsWeighted, preset]);
 
   // ---- Algorithm Controllers ----
   const graphAlgo = useAlgorithm(
     !isGrid ? algorithmDef?.generator : null,
     getAdjacencyList,
     preset?.startNode || '0',
-    preset?.directed || false,
-    preset?.weighted || false
+    isDirected,
+    isWeighted
   );
 
   const gridAlgo = useGridAlgorithm(
@@ -170,7 +238,28 @@ function App() {
 
   const activeAlgorithmState = isGrid ? gridAlgo.algorithmData : graphAlgo.algorithmState;
 
-  // Apply algorithm states to React Flow
+  // Stop algorithm and reset it if entering edit mode or changing graph structure
+  useEffect(() => {
+    if (isEditing) {
+      resetAlgorithm();
+    }
+  }, [isEditing, resetAlgorithm]);
+
+  // Reset algorithm when graph changes
+  const prevNodesRef = useRef(nodes);
+  const prevEdgesRef = useRef(edges);
+  useEffect(() => {
+    if (nodes !== prevNodesRef.current || edges !== prevEdgesRef.current) {
+      if (currentStep > 0 && !isPlaying) {
+         resetAlgorithm();
+      }
+      prevNodesRef.current = nodes;
+      prevEdgesRef.current = edges;
+    }
+  }, [nodes, edges, resetAlgorithm, currentStep, isPlaying]);
+
+
+  // Apply algorithm states and editing states to React Flow
   const styledNodes = useMemo(() => {
     return nodes.map((node) => ({
       ...node,
@@ -179,9 +268,11 @@ function App() {
         ...node.data,
         status: graphAlgo.nodeStates?.get(node.id) || 'default',
         distance: graphAlgo.algorithmState?.distances?.[node.id],
+        isEditing,
       },
+      draggable: isEditing && editorMode === 'select' && !isPlaying,
     }));
-  }, [nodes, graphAlgo.nodeStates, graphAlgo.algorithmState]);
+  }, [nodes, graphAlgo.nodeStates, graphAlgo.algorithmState, isEditing, editorMode, isPlaying]);
 
   const styledEdges = useMemo(() => {
     return edges.map((edge) => ({
@@ -190,9 +281,10 @@ function App() {
       data: {
         ...edge.data,
         status: graphAlgo.edgeStates?.get(edge.id) || 'default',
+        isEditing,
       },
     }));
-  }, [edges, graphAlgo.edgeStates]);
+  }, [edges, graphAlgo.edgeStates, isEditing]);
 
   // ---- Handlers ----
   const handleSelectProblem = useCallback(
@@ -200,16 +292,25 @@ function App() {
       const id = typeof problemOrId === 'object' ? problemOrId.id : problemOrId;
       resetAlgorithm();
       setSelectedProblemId(id);
+      if (isEditing) toggleEditing(); // Exit edit mode
     },
-    [resetAlgorithm]
+    [resetAlgorithm, isEditing, toggleEditing]
   );
 
   const handleReset = useCallback(() => {
+    resetAlgorithm();
+    if (!isGrid && presetNodes.length > 0 && !isEditing) {
+      resetGraph(presetNodes, presetEdges);
+    }
+  }, [resetAlgorithm, isGrid, resetGraph, presetNodes, presetEdges, isEditing]);
+
+  const handleResetToPreset = useCallback(() => {
     resetAlgorithm();
     if (!isGrid && presetNodes.length > 0) {
       resetGraph(presetNodes, presetEdges);
     }
   }, [resetAlgorithm, isGrid, resetGraph, presetNodes, presetEdges]);
+
 
   return (
     <ReactFlowProvider>
@@ -223,6 +324,7 @@ function App() {
           algorithmName={algorithmDef?.name}
           onCycleTheme={handleCycleTheme}
           onImageUpload={handleImageUpload}
+          overallProgress={getOverallProgress(problems)}
         />
 
         {/* Main Content Area */}
@@ -234,6 +336,9 @@ function App() {
             onSelectProblem={handleSelectProblem}
             isCollapsed={sidebarCollapsed}
             onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
+            completedProblems={completedProblems}
+            toggleCompleted={toggleCompleted}
+            getSectionProgress={getSectionProgress}
           />
 
           {/* Code Panel — resizable, glass-tracked */}
@@ -261,6 +366,29 @@ function App() {
 
           {/* Graph Canvas or Grid Canvas + Controls */}
           <div className="flex-1 flex flex-col relative min-w-0">
+            {!isGrid && (
+              <GraphEditorToolbar
+                editorMode={editorMode}
+                setEditorMode={setEditorMode}
+                isEditing={isEditing}
+                toggleEditing={toggleEditing}
+                isDirected={isDirected}
+                toggleDirected={toggleDirected}
+                isWeighted={isWeighted}
+                toggleWeighted={toggleWeighted}
+                undo={undo}
+                redo={redo}
+                canUndo={canUndo}
+                canRedo={canRedo}
+                clearGraph={clearGraph}
+                resetToPreset={handleResetToPreset}
+                autoLayout={handleAutoLayout}
+                nodeCount={nodeCount}
+                edgeCount={edgeCount}
+                onOpenInputModal={() => setIsInputModalOpen(true)}
+              />
+            )}
+
             {isGrid ? (
               <GridCanvas grid={gridAlgo.currentGrid} />
             ) : (
@@ -270,6 +398,18 @@ function App() {
                 onNodesChange={onNodesChange}
                 onEdgesChange={onEdgesChange}
                 onConnect={onConnect}
+                editorMode={editorMode}
+                isEditing={isEditing}
+                isDirected={isDirected}
+                isWeighted={isWeighted}
+                addNodeAtPosition={addNodeAtPosition}
+                onNodesDelete={onNodesDelete}
+                onEdgesDelete={onEdgesDelete}
+                editingEdgeId={editingEdgeId}
+                updateEdgeWeight={updateEdgeWeight}
+                startEditingEdge={startEditingEdge}
+                cancelEditingEdge={cancelEditingEdge}
+                isPlaying={isPlaying}
               />
             )}
 
@@ -285,17 +425,28 @@ function App() {
               onSpeedChange={setSpeed}
               currentStep={currentStep}
               totalSteps={totalSteps}
-              disabled={!algorithmDef}
+              disabled={!algorithmDef || isEditing}
             />
 
             {/* State Panel */}
             <StatePanel
               algorithmState={activeAlgorithmState}
+              stepDescription={activeAlgo.stepDescription}
               isExpanded={statePanelExpanded}
               onToggle={() => setStatePanelExpanded(!statePanelExpanded)}
             />
           </div>
         </div>
+        
+        <GraphInputModal 
+          isOpen={isInputModalOpen} 
+          onClose={() => setIsInputModalOpen(false)} 
+          onLoadGraph={(data) => {
+            loadGraph(data);
+            if (!isEditing) toggleEditing(); // enter edit mode to see what was imported
+          }}
+          currentGraphData={getGraphData}
+        />
       </div>
     </ReactFlowProvider>
   );

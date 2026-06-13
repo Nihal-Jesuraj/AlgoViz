@@ -7,6 +7,9 @@ import {
   ChevronDown,
   ChevronUp,
   ExternalLink,
+  CheckCircle2,
+  Circle,
+  Filter
 } from 'lucide-react';
 
 function Sidebar({
@@ -15,36 +18,46 @@ function Sidebar({
   onSelectProblem = () => {},
   isCollapsed = false,
   onToggleCollapse = () => {},
+  completedProblems = new Set(),
+  toggleCompleted = () => {},
+  getSectionProgress = () => ({ completed: 0, total: 0, percentage: 0 }),
 }) {
   const [searchQuery, setSearchQuery] = useState('');
   const [expandedSections, setExpandedSections] = useState({});
+  const [filterStatus, setFilterStatus] = useState('all'); // 'all' | 'incomplete' | 'completed'
 
-  // Group problems by sectionName
+  // Filter problems by search and completion status
+  const filteredProblems = useMemo(() => {
+    let result = problems;
+    
+    if (filterStatus === 'completed') {
+      result = result.filter(p => completedProblems.has(p.id));
+    } else if (filterStatus === 'incomplete') {
+      result = result.filter(p => !completedProblems.has(p.id));
+    }
+
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase();
+      result = result.filter(
+        (p) =>
+          p.title?.toLowerCase().includes(q) ||
+          p.id?.toLowerCase().includes(q)
+      );
+    }
+    
+    return result;
+  }, [problems, completedProblems, filterStatus, searchQuery]);
+
+  // Group filtered problems by sectionName
   const sections = useMemo(() => {
     const grouped = {};
-    problems.forEach((p) => {
+    filteredProblems.forEach((p) => {
       const section = p.sectionName || 'Uncategorized';
       if (!grouped[section]) grouped[section] = [];
       grouped[section].push(p);
     });
     return grouped;
-  }, [problems]);
-
-  // Filter by search
-  const filteredSections = useMemo(() => {
-    if (!searchQuery.trim()) return sections;
-    const q = searchQuery.toLowerCase();
-    const result = {};
-    Object.entries(sections).forEach(([section, items]) => {
-      const filtered = items.filter(
-        (p) =>
-          p.title?.toLowerCase().includes(q) ||
-          p.id?.toLowerCase().includes(q)
-      );
-      if (filtered.length) result[section] = filtered;
-    });
-    return result;
-  }, [sections, searchQuery]);
+  }, [filteredProblems]);
 
   const toggleSection = (section) => {
     setExpandedSections((prev) => ({
@@ -59,14 +72,10 @@ function Sidebar({
 
   const difficultyClass = (diff) => {
     switch (diff?.toLowerCase()) {
-      case 'easy':
-        return 'easy';
-      case 'medium':
-        return 'medium';
-      case 'hard':
-        return 'hard';
-      default:
-        return '';
+      case 'easy': return 'easy';
+      case 'medium': return 'medium';
+      case 'hard': return 'hard';
+      default: return '';
     }
   };
 
@@ -79,37 +88,68 @@ function Sidebar({
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
     >
       {/* Header: Toggle + Search */}
-      <div className="flex items-center gap-2 p-3 border-b border-black/5">
-        <button
-          id="sidebar-toggle"
-          className="glass-button !p-2 !rounded-lg flex-shrink-0"
-          onClick={onToggleCollapse}
-          aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
-        >
-          {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
-        </button>
+      <div className="flex flex-col gap-2 p-3 border-b border-black/5">
+        <div className="flex items-center gap-2">
+          <button
+            id="sidebar-toggle"
+            className="glass-button !p-2 !rounded-lg flex-shrink-0"
+            onClick={onToggleCollapse}
+            aria-label={isCollapsed ? 'Expand sidebar' : 'Collapse sidebar'}
+          >
+            {isCollapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
+          </button>
 
+          <AnimatePresence>
+            {!isCollapsed && (
+              <motion.div
+                className="relative flex-1"
+                initial={{ opacity: 0, width: 0 }}
+                animate={{ opacity: 1, width: 'auto' }}
+                exit={{ opacity: 0, width: 0 }}
+                transition={{ duration: 0.2 }}
+              >
+                <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-subtle)]" />
+                <input
+                  id="sidebar-search"
+                  type="text"
+                  placeholder="Search problems…"
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="glass-input !pl-8 !py-1.5 !text-xs"
+                />
+              </motion.div>
+            )}
+          </AnimatePresence>
+        </div>
+        
+        {/* Filter Toolbar */}
         <AnimatePresence>
           {!isCollapsed && (
             <motion.div
-              className="relative flex-1"
-              initial={{ opacity: 0, width: 0 }}
-              animate={{ opacity: 1, width: 'auto' }}
-              exit={{ opacity: 0, width: 0 }}
-              transition={{ duration: 0.2 }}
+              className="flex items-center gap-1 bg-black/10 p-1 rounded-lg mt-1"
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
             >
-              <Search
-                size={14}
-                className="absolute left-3 top-1/2 -translate-y-1/2 text-[var(--color-text-subtle)]"
-              />
-              <input
-                id="sidebar-search"
-                type="text"
-                placeholder="Search problems…"
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="glass-input !pl-8 !py-1.5 !text-xs"
-              />
+              <Filter size={12} className="text-white/40 ml-1 mr-1" />
+              <button
+                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'all' ? 'bg-white/20 text-white shadow-sm' : 'text-white/50 hover:text-white'}`}
+                onClick={() => setFilterStatus('all')}
+              >
+                All
+              </button>
+              <button
+                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'incomplete' ? 'bg-white/20 text-white shadow-sm' : 'text-white/50 hover:text-white'}`}
+                onClick={() => setFilterStatus('incomplete')}
+              >
+                To Do
+              </button>
+              <button
+                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'completed' ? 'bg-accent-teal/40 text-white shadow-sm' : 'text-white/50 hover:text-white'}`}
+                onClick={() => setFilterStatus('completed')}
+              >
+                Done
+              </button>
             </motion.div>
           )}
         </AnimatePresence>
@@ -119,87 +159,96 @@ function Sidebar({
       <div className="flex-1 overflow-y-auto py-1">
         <AnimatePresence>
           {!isCollapsed &&
-            Object.entries(filteredSections).map(([section, items]) => (
-              <div key={section}>
-                {/* Section header */}
-                <button
-                  className="section-header w-full flex items-center justify-between cursor-pointer hover:text-[var(--color-text-muted)] transition-colors"
-                  onClick={() => toggleSection(section)}
-                  id={`section-${section.replace(/\s+/g, '-').toLowerCase()}`}
-                >
-                  <span className="truncate">{section}</span>
-                  {isSectionExpanded(section) ? (
-                    <ChevronUp size={12} className="flex-shrink-0 ml-1" />
-                  ) : (
-                    <ChevronDown size={12} className="flex-shrink-0 ml-1" />
-                  )}
-                </button>
+            Object.entries(sections).map(([section, items]) => {
+              const progress = getSectionProgress(problems, parseInt(section.match(/\d+/)?.[0] || '0'));
+              
+              return (
+                <div key={section} className="mb-2">
+                  {/* Section header */}
+                  <button
+                    className="section-header w-full flex flex-col justify-center cursor-pointer hover:bg-white/5 transition-colors py-2 px-3 border-b border-white/5"
+                    onClick={() => toggleSection(section)}
+                    id={`section-${section.replace(/\s+/g, '-').toLowerCase()}`}
+                  >
+                    <div className="flex items-center justify-between w-full">
+                      <span className="truncate text-xs font-semibold text-white/90">{section}</span>
+                      <div className="flex items-center gap-2 text-[10px] text-white/50">
+                        <span>{progress.completed}/{progress.total}</span>
+                        {isSectionExpanded(section) ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                      </div>
+                    </div>
+                    {/* Section Progress Bar */}
+                    <div className="w-full h-1 bg-black/20 rounded-full mt-1.5 overflow-hidden">
+                      <div 
+                        className="h-full bg-accent-teal transition-all duration-500 ease-out" 
+                        style={{ width: `${progress.percentage}%` }}
+                      />
+                    </div>
+                  </button>
 
-                {/* Section items */}
-                <AnimatePresence>
-                  {isSectionExpanded(section) &&
-                    items.map((problem, idx) => {
-                      const isSelected = selectedProblem?.id === problem.id;
+                  {/* Section items */}
+                  <AnimatePresence>
+                    {isSectionExpanded(section) &&
+                      items.map((problem, idx) => {
+                        const isSelected = selectedProblem?.id === problem.id;
+                        const isDone = completedProblems.has(problem.id);
 
-                      return (
-                        <motion.button
-                          key={problem.id}
-                          id={`problem-${problem.id}`}
-                          className={`w-full text-left px-4 py-2.5 flex items-center gap-3 transition-all duration-200 hover:bg-accent-purple/5 group ${
-                            isSelected
-                              ? 'bg-accent-purple-lighter/60 border-l-[3px] border-l-accent-purple pl-[13px]'
-                              : 'border-l-[3px] border-l-transparent'
-                          }`}
-                          onClick={() => onSelectProblem(problem)}
-                          initial={{ opacity: 0, x: -10 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          exit={{ opacity: 0, x: -10 }}
-                          transition={{ duration: 0.15, delay: idx * 0.02 }}
-                        >
-                          {/* Problem ID badge */}
-                          <span className="flex-shrink-0 w-8 h-6 flex items-center justify-center rounded-md bg-black/[0.04] font-mono text-[10px] font-semibold text-[var(--color-text-muted)]">
-                            {problem.id}
-                          </span>
-
-                          {/* Title + difficulty */}
-                          <div className="flex-1 min-w-0">
-                            <div className="flex items-center gap-2">
-                              <span className="text-xs font-medium text-[var(--color-text)] truncate">
-                                {problem.title}
+                        return (
+                          <motion.div
+                            key={problem.id}
+                            initial={{ opacity: 0, x: -10 }}
+                            animate={{ opacity: 1, x: 0 }}
+                            exit={{ opacity: 0, height: 0 }}
+                            transition={{ duration: 0.15, delay: Math.min(idx * 0.02, 0.2) }}
+                            className={`w-full flex items-center group transition-colors duration-200 ${
+                              isSelected
+                                ? 'bg-accent-purple-lighter/60 border-l-[3px] border-l-accent-purple'
+                                : 'border-l-[3px] border-l-transparent hover:bg-white/5'
+                            } ${isDone ? 'opacity-80' : ''}`}
+                          >
+                            <button
+                              id={`problem-${problem.id}`}
+                              className="flex-1 flex items-center gap-3 text-left pl-3 pr-2 py-2.5 min-w-0"
+                              onClick={() => onSelectProblem(problem)}
+                            >
+                              <span className={`flex-shrink-0 w-8 h-6 flex items-center justify-center rounded-md font-mono text-[10px] font-semibold transition-colors ${
+                                isDone ? 'bg-accent-teal/20 text-accent-teal' : 'bg-black/[0.04] text-[var(--color-text-muted)]'
+                              }`}>
+                                {problem.id}
                               </span>
+
+                              <div className="flex-1 min-w-0">
+                                <span className={`text-xs font-medium truncate block ${
+                                  isDone ? 'text-white/60 line-through decoration-white/30' : 'text-[var(--color-text)]'
+                                }`}>
+                                  {problem.title}
+                                </span>
+                              </div>
+
+                              {problem.difficulty && (
+                                <span className={`difficulty-pill flex-shrink-0 ${difficultyClass(problem.difficulty)} ${isDone ? 'opacity-50' : ''}`}>
+                                  {problem.difficulty}
+                                </span>
+                              )}
+                            </button>
+                            
+                            <div className="flex flex-col gap-1 pr-3">
+                              {/* Mark as Done Checkbox */}
+                              <button 
+                                onClick={(e) => { e.stopPropagation(); toggleCompleted(problem.id); }}
+                                className={`p-1 rounded-full transition-colors ${isDone ? 'text-accent-teal hover:text-accent-teal/70' : 'text-white/20 hover:text-white/60'}`}
+                                title={isDone ? "Mark as incomplete" : "Mark as done"}
+                              >
+                                {isDone ? <CheckCircle2 size={14} /> : <Circle size={14} />}
+                              </button>
                             </div>
-                          </div>
-
-                          {/* Difficulty pill */}
-                          {problem.difficulty && (
-                            <span
-                              className={`difficulty-pill flex-shrink-0 ${difficultyClass(
-                                problem.difficulty
-                              )}`}
-                            >
-                              {problem.difficulty}
-                            </span>
-                          )}
-
-                          {/* LeetCode link */}
-                          {problem.leetcodeUrl && (
-                            <a
-                              href={problem.leetcodeUrl}
-                              target="_blank"
-                              rel="noopener noreferrer"
-                              className="flex-shrink-0 opacity-0 group-hover:opacity-60 transition-opacity"
-                              onClick={(e) => e.stopPropagation()}
-                              aria-label={`Open ${problem.title} on LeetCode`}
-                            >
-                              <ExternalLink size={12} />
-                            </a>
-                          )}
-                        </motion.button>
-                      );
-                    })}
-                </AnimatePresence>
-              </div>
-            ))}
+                          </motion.div>
+                        );
+                      })}
+                  </AnimatePresence>
+                </div>
+              );
+            })}
         </AnimatePresence>
 
         {/* Collapsed: show only icons */}
@@ -207,6 +256,7 @@ function Sidebar({
           <div className="flex flex-col items-center gap-1 pt-2">
             {problems.slice(0, 12).map((problem) => {
               const isSelected = selectedProblem?.id === problem.id;
+              const isDone = completedProblems.has(problem.id);
               return (
                 <button
                   key={problem.id}
@@ -214,7 +264,9 @@ function Sidebar({
                   className={`w-9 h-8 flex items-center justify-center rounded-lg text-[10px] font-mono font-semibold transition-all duration-200 ${
                     isSelected
                       ? 'bg-accent-purple text-white shadow-purple-glow'
-                      : 'hover:bg-black/5 text-[var(--color-text-muted)]'
+                      : isDone 
+                        ? 'bg-accent-teal/10 text-accent-teal hover:bg-accent-teal/20'
+                        : 'hover:bg-black/5 text-[var(--color-text-muted)]'
                   }`}
                   onClick={() => onSelectProblem(problem)}
                   title={problem.title}
