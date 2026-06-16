@@ -52,7 +52,7 @@ class Solution {
     }
 }` },
 
-  { id: 'g4', title: 'G4 - Cycle Detection (Undirected BFS)', section: 1, sectionName: 'Graph Fundamentals', difficulty: 'Medium', algorithmKey: 'cycleDetectionUndirectedDFS', presetGraphKey: 'cycle-undirected', isGrid: false,
+  { id: 'g4', title: 'G4 - Cycle Detection (Undirected BFS)', section: 1, sectionName: 'Graph Fundamentals', difficulty: 'Medium', algorithmKey: 'cycleDetectionUndirectedDFS', presetGraphKey: 'cycle-undirected', isGrid: false, input: '[[1,2],[0,2],[0,1,3],[2]]', isDirected: false, isWeighted: false,
     leetcodeUrl: 'https://www.geeksforgeeks.org/problems/detect-cycle-in-an-undirected-graph/1',
     description: 'Detect if an undirected graph contains a cycle using BFS.',
     javaCode: `// Cycle Detection - Undirected Graph (BFS)
@@ -87,7 +87,7 @@ class Solution {
     }
 }` },
 
-  { id: 'g5', title: 'G5 - Cycle Detection (Undirected DFS)', section: 1, sectionName: 'Graph Fundamentals', difficulty: 'Medium', algorithmKey: 'cycleDetectionUndirectedDFS', presetGraphKey: 'cycle-undirected', isGrid: false,
+  { id: 'g5', title: 'G5 - Cycle Detection (Undirected DFS)', section: 1, sectionName: 'Graph Fundamentals', difficulty: 'Medium', algorithmKey: 'cycleDetectionUndirectedDFS', presetGraphKey: 'cycle-undirected', isGrid: false, input: '[[1,2],[0,2],[0,1,3],[2]]', isDirected: false, isWeighted: false,
     leetcodeUrl: 'https://www.geeksforgeeks.org/problems/detect-cycle-in-an-undirected-graph/1',
     description: 'Detect if an undirected graph contains a cycle using DFS.',
     javaCode: `// Cycle Detection - Undirected Graph (DFS)
@@ -148,7 +148,7 @@ class Solution {
 }` },
 
   // ═══════════════════════════════ SECTION 2: BFS/DFS PROBLEMS ═══════════════════════════════
-  { id: 'g7', title: 'G7 - Cycle Detection (Directed DFS)', section: 2, sectionName: 'BFS/DFS Problems', difficulty: 'Medium', algorithmKey: 'cycleDetectionDirectedDFS', presetGraphKey: 'cycle-directed', isGrid: false,
+  { id: 'g7', title: 'G7 - Cycle Detection (Directed DFS)', section: 2, sectionName: 'BFS/DFS Problems', difficulty: 'Medium', algorithmKey: 'cycleDetectionDirectedDFS', presetGraphKey: 'cycle-directed', isGrid: false, input: '[[1],[2],[0,3],[]]', isDirected: true, isWeighted: false,
     leetcodeUrl: 'https://www.geeksforgeeks.org/problems/detect-cycle-in-a-directed-graph/1',
     description: 'Detect cycle in a directed graph using DFS 3-coloring.',
     javaCode: `// Cycle Detection - Directed Graph (DFS)
@@ -174,7 +174,7 @@ class Solution {
     }
 }` },
 
-  { id: 'g8', title: 'G8 - Eventual Safe States', section: 2, sectionName: 'BFS/DFS Problems', difficulty: 'Medium', algorithmKey: 'eventualSafeStates', presetGraphKey: 'safe-states', isGrid: false,
+  { id: 'g8', title: 'G8 - Eventual Safe States', section: 2, sectionName: 'BFS/DFS Problems', difficulty: 'Medium', algorithmKey: 'eventualSafeStates', presetGraphKey: 'safe-states', isGrid: false, input: '[[], [0, 2, 3, 4], [3], [4], []]', isDirected: true, isWeighted: false,
     leetcodeUrl: 'https://leetcode.com/problems/find-eventual-safe-states/',
     description: 'Find all nodes that are eventually safe (all paths lead to terminal nodes).',
     javaCode: `// Eventual Safe States (DFS)
@@ -252,7 +252,7 @@ class Solution {
     }
 }` },
 
-  { id: 'g11', title: 'G11 - Cycle Detection (Directed BFS)', section: 2, sectionName: 'BFS/DFS Problems', difficulty: 'Medium', algorithmKey: 'kahnsTopoSort', presetGraphKey: 'cycle-directed', isGrid: false,
+  { id: 'g11', title: 'G11 - Cycle Detection (Directed BFS)', section: 2, sectionName: 'BFS/DFS Problems', difficulty: 'Medium', algorithmKey: 'kahnsTopoSort', presetGraphKey: 'cycle-directed', isGrid: false, input: '[[1],[2],[0,3],[]]', isDirected: true, isWeighted: false,
     leetcodeUrl: 'https://www.geeksforgeeks.org/problems/detect-cycle-in-a-directed-graph/1',
     description: "Detect cycle in directed graph using Kahn's algorithm (if topo sort doesn't include all nodes, there's a cycle).",
     javaCode: `// Cycle Detection Directed (Kahn's / BFS)
@@ -624,7 +624,7 @@ class Solution {
     }
 }` },
 
-  { id: 'g23', title: 'G23 - Shortest Path in DAG', section: 3, sectionName: 'Shortest Path', difficulty: 'Medium', algorithmKey: 'dagShortestPath', presetGraphKey: 'dag-shortest', isGrid: false,
+  { id: 'g23', title: 'G23 - Shortest Path in DAG', section: 3, sectionName: 'Shortest Path', difficulty: 'Medium', algorithmKey: 'dagShortestPath', presetGraphKey: 'dag-shortest', isGrid: false, input: '[[[1,2],[2,1]],[],[],[]]', isDirected: true, isWeighted: true,
     leetcodeUrl: 'https://www.geeksforgeeks.org/problems/shortest-path-in-undirected-graph/1',
     description: 'Find shortest distances from source in a weighted DAG using topo sort.',
     javaCode: `// Shortest Path in DAG

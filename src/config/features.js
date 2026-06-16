@@ -1,0 +1,3 @@
+export const FEATURES = {
+  ENABLE_AI_DIAGRAM_RECONSTRUCTION: true,
+};

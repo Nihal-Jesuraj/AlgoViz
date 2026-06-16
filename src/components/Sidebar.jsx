@@ -14,7 +14,9 @@ import {
 
 function Sidebar({
   problems = [],
+  customRuns = [],
   selectedProblem = null,
+  selectedProblemId = '',
   onSelectProblem = () => {},
   isCollapsed = false,
   onToggleCollapse = () => {},
@@ -131,21 +133,21 @@ function Sidebar({
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
             >
-              <Filter size={12} className="text-white/40 ml-1 mr-1" />
+              <Filter size={12} className="text-[var(--color-text-subtle)] ml-1 mr-1" />
               <button
-                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'all' ? 'bg-white/20 text-white shadow-sm' : 'text-white/50 hover:text-white'}`}
+                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'all' ? 'bg-[var(--glass-border-hover)] text-[var(--color-text)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setFilterStatus('all')}
               >
                 All
               </button>
               <button
-                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'incomplete' ? 'bg-white/20 text-white shadow-sm' : 'text-white/50 hover:text-white'}`}
+                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'incomplete' ? 'bg-[var(--glass-border-hover)] text-[var(--color-text)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setFilterStatus('incomplete')}
               >
                 To Do
               </button>
               <button
-                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'completed' ? 'bg-accent-teal/40 text-white shadow-sm' : 'text-white/50 hover:text-white'}`}
+                className={`flex-1 text-[10px] py-1 rounded font-medium transition-colors ${filterStatus === 'completed' ? 'bg-accent-teal/40 text-[var(--color-text)] shadow-sm' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setFilterStatus('completed')}
               >
                 Done
@@ -153,10 +155,79 @@ function Sidebar({
             </motion.div>
           )}
         </AnimatePresence>
+
+        {/* Custom Import Button */}
+        <AnimatePresence>
+          {!isCollapsed && (
+            <motion.button
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="glass-button w-full !py-2 !px-3 flex items-center justify-center gap-2 primary mt-2 font-semibold tracking-wide border border-[var(--color-accent)]"
+              onClick={() => onSelectProblem({ id: 'import', title: 'Dry Run' })}
+            >
+              <ExternalLink size={14} />
+              <span>Dry Run</span>
+            </motion.button>
+          )}
+        </AnimatePresence>
       </div>
 
       {/* Problem list */}
       <div className="flex-1 overflow-y-auto py-1">
+        
+        {/* Custom Runs Section */}
+        <AnimatePresence>
+          {!isCollapsed && customRuns.length > 0 && (
+            <div className="mb-2">
+              <button
+                className="section-header w-full flex flex-col justify-center cursor-pointer hover:bg-white/5 transition-colors py-2 px-3 border-b border-white/5"
+                onClick={() => toggleSection('customRuns')}
+              >
+                <div className="flex items-center justify-between w-full">
+                  <span className="truncate text-xs font-semibold text-[var(--color-accent)]">Custom Runs</span>
+                  <div className="flex items-center gap-2 text-[10px] text-[var(--color-accent)]">
+                    <span>{customRuns.length}</span>
+                    {isSectionExpanded('customRuns') ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                  </div>
+                </div>
+              </button>
+              
+              <AnimatePresence>
+                {isSectionExpanded('customRuns') && (
+                  <motion.div
+                    initial={{ height: 0, opacity: 0 }}
+                    animate={{ height: 'auto', opacity: 1 }}
+                    exit={{ height: 0, opacity: 0 }}
+                    className="overflow-hidden"
+                  >
+                    {customRuns.map((run) => (
+                      <div
+                        key={run.id}
+                        className={`group relative flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors border-l-2
+                          ${selectedProblemId === run.id 
+                            ? 'bg-white/5 border-[var(--color-accent)]' 
+                            : 'border-transparent hover:bg-white/[0.02]'}
+                        `}
+                        onClick={() => onSelectProblem({ id: run.id, title: run.title })}
+                      >
+                        <div className="flex-1 min-w-0">
+                          <h3 className={`text-xs font-medium truncate ${selectedProblemId === run.id ? 'text-[var(--color-text)]' : 'text-[var(--color-text-muted)] group-hover:text-[var(--color-text)]'}`}>
+                            {run.title}
+                          </h3>
+                        </div>
+                        <span className={`text-[9px] font-bold px-1.5 py-0.5 rounded-full border ${run.algorithmType === 'arrayAnalysis' ? 'text-blue-400 border-blue-400/20 bg-blue-400/10' : 'text-purple-400 border-purple-400/20 bg-purple-400/10'}`}>
+                          {run.algorithmType === 'arrayAnalysis' ? 'ARRAY' : 'GRAPH'}
+                        </span>
+                      </div>
+                    ))}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+          )}
+        </AnimatePresence>
+
         <AnimatePresence>
           {!isCollapsed &&
             Object.entries(sections).map(([section, items]) => {
@@ -171,8 +242,8 @@ function Sidebar({
                     id={`section-${section.replace(/\s+/g, '-').toLowerCase()}`}
                   >
                     <div className="flex items-center justify-between w-full">
-                      <span className="truncate text-xs font-semibold text-white/90">{section}</span>
-                      <div className="flex items-center gap-2 text-[10px] text-white/50">
+                      <span className="truncate text-xs font-semibold text-[var(--color-text)]">{section}</span>
+                      <div className="flex items-center gap-2 text-[10px] text-[var(--color-text-muted)]">
                         <span>{progress.completed}/{progress.total}</span>
                         {isSectionExpanded(section) ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
                       </div>
@@ -202,7 +273,7 @@ function Sidebar({
                             transition={{ duration: 0.15, delay: Math.min(idx * 0.02, 0.2) }}
                             className={`w-full flex items-center group transition-colors duration-200 ${
                               isSelected
-                                ? 'bg-accent-purple-lighter/60 border-l-[3px] border-l-accent-purple'
+                                ? 'bg-[var(--glass-fill)] border-l-[3px] border-l-[var(--color-accent)]'
                                 : 'border-l-[3px] border-l-transparent hover:bg-white/5'
                             } ${isDone ? 'opacity-80' : ''}`}
                           >
@@ -219,7 +290,7 @@ function Sidebar({
 
                               <div className="flex-1 min-w-0">
                                 <span className={`text-xs font-medium truncate block ${
-                                  isDone ? 'text-white/60 line-through decoration-white/30' : 'text-[var(--color-text)]'
+                                  isDone ? 'text-[var(--color-text-muted)] line-through opacity-60' : 'text-[var(--color-text)]'
                                 }`}>
                                   {problem.title}
                                 </span>
@@ -236,7 +307,7 @@ function Sidebar({
                               {/* Mark as Done Checkbox */}
                               <button 
                                 onClick={(e) => { e.stopPropagation(); toggleCompleted(problem.id); }}
-                                className={`p-1 rounded-full transition-colors ${isDone ? 'text-accent-teal hover:text-accent-teal/70' : 'text-white/20 hover:text-white/60'}`}
+                                className={`p-1 rounded-full transition-colors ${isDone ? 'text-accent-teal hover:text-accent-teal/70' : 'text-[var(--color-text-subtle)] hover:text-[var(--color-text-muted)]'}`}
                                 title={isDone ? "Mark as incomplete" : "Mark as done"}
                               >
                                 {isDone ? <CheckCircle2 size={14} /> : <Circle size={14} />}
@@ -255,15 +326,15 @@ function Sidebar({
         {isCollapsed && (
           <div className="flex flex-col items-center gap-1 pt-2">
             {problems.slice(0, 12).map((problem) => {
-              const isSelected = selectedProblem?.id === problem.id;
+              const isActive = selectedProblem?.id === problem.id;
               const isDone = completedProblems.has(problem.id);
               return (
                 <button
                   key={problem.id}
                   id={`problem-collapsed-${problem.id}`}
                   className={`w-9 h-8 flex items-center justify-center rounded-lg text-[10px] font-mono font-semibold transition-all duration-200 ${
-                    isSelected
-                      ? 'bg-accent-purple text-white shadow-purple-glow'
+                    isActive
+                      ? 'bg-[var(--color-accent)] text-white'
                       : isDone 
                         ? 'bg-accent-teal/10 text-accent-teal hover:bg-accent-teal/20'
                         : 'hover:bg-black/5 text-[var(--color-text-muted)]'

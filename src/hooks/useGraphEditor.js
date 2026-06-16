@@ -20,8 +20,7 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
   const [nodes, setNodes, onNodesChange] = useNodesState(initialNodes);
   const [edges, setEdges, onEdgesChange] = useEdgesState(initialEdges);
 
-  // Editor mode: 'select' | 'addNode' | 'addEdge'
-  const [editorMode, setEditorMode] = useState('select');
+  // Editor mode: 'select' | 'addNode' | 'addEdge' (Removed to support unified mode)
 
   // Graph type toggles
   const [isDirected, setIsDirected] = useState(false);
@@ -118,7 +117,7 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
 
   const onPaneClick = useCallback(
     (event) => {
-      if (editorMode !== 'addNode' || !isEditing) return;
+      if (!isEditing) return;
 
       // Get the React Flow pane position from the event
       // The event target is the React Flow pane; we need viewport-relative coords
@@ -141,7 +140,7 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
       setNodes((nds) => [...nds, newNode]);
       return { nodeId: newId, event };
     },
-    [editorMode, isEditing, setNodes, pushHistory]
+    [isEditing, setNodes, pushHistory]
   );
 
   // Add a node at a specific flow position (called from GraphCanvas after coordinate conversion)
@@ -212,6 +211,18 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
       setEdges((eds) => eds.filter((e) => e.id !== edgeId));
     },
     [setEdges, pushHistory]
+  );
+
+  const renameNode = useCallback(
+    (nodeId, newLabel) => {
+      pushHistory();
+      setNodes((nds) =>
+        nds.map((n) =>
+          n.id === nodeId ? { ...n, data: { ...n.data, label: newLabel } } : n
+        )
+      );
+    },
+    [setNodes, pushHistory]
   );
 
   const onEdgesDelete = useCallback(
@@ -388,7 +399,6 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
       }
       return !prev;
     });
-    setEditorMode('select');
     setEditingEdgeId(null);
   }, [nodes, edges, computeNextId]);
 
@@ -406,9 +416,8 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
     onEdgesChange,
     onConnect,
 
-    // Editor mode
-    editorMode,
-    setEditorMode,
+    // Editor mode removed, kept keys undefined or omit them
+    // Graph type
     isEditing,
     toggleEditing,
     setIsEditing,
@@ -424,6 +433,7 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
     // Node operations
     addNodeAtPosition,
     removeNode,
+    renameNode,
     onNodesDelete,
 
     // Edge operations

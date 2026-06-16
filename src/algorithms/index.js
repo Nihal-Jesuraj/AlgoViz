@@ -24,6 +24,23 @@ import { eulerPathGenerator } from './eulerPath';
 import { rottenOrangesGenerator, shortestPathBinaryMatrixGenerator, floodFillGenerator, nearestCellGenerator, distanceFromGuardGenerator } from './gridBFS';
 import { numberOfIslandsGenerator, surroundedRegionsGenerator, numberOfEnclavesGenerator, distinctIslandsGenerator } from './gridDFS';
 
+/**
+ * Custom JSON Generator
+ * Safely iterates through a pre-computed dryRun JSON array without using eval()
+ */
+export function* jsonDryRunGenerator(graph, startNode, dryRunArray = []) {
+  for (const step of dryRunArray) {
+    yield {
+      type: step.action || 'visit',
+      node: step.node || null,
+      edge: step.edge || null,
+      line: step.step || -1,
+      data: step.state || {},
+      description: step.description || 'AI Step',
+    };
+  }
+}
+
 export const algorithms = {
   // ── Graph Traversal ──
   bfs: { name: 'BFS Traversal', generator: bfsGenerator, category: 'traversal' },
@@ -74,6 +91,9 @@ export const algorithms = {
   surroundedRegions: { name: 'Surrounded Regions', generator: surroundedRegionsGenerator, category: 'grid', isGrid: true },
   numberOfEnclaves: { name: 'Number of Enclaves', generator: numberOfEnclavesGenerator, category: 'grid', isGrid: true },
   distinctIslands: { name: 'Distinct Islands', generator: distinctIslandsGenerator, category: 'grid', isGrid: true },
+
+  // ── AI Custom ──
+  custom: { name: 'AI Custom Solution', generator: jsonDryRunGenerator, category: 'custom' },
 };
 
 export default algorithms;

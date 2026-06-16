@@ -15,7 +15,6 @@ function CustomNode({ data, id }) {
   const statusClass = statusClassMap[status] || 'node-default';
   const isMst = status === 'in-mst';
   const isEditing = data?.isEditing || false;
-  const isAddEdgeMode = isEditing && data?.editorMode === 'addEdge';
 
   return (
     <div className="relative flex flex-col items-center group" id={`node-${id}`}>
@@ -31,7 +30,7 @@ function CustomNode({ data, id }) {
       <div
         className={`graph-node ${statusClass} ${
           isMst ? '!border-[3px] !border-accent-teal-dark' : ''
-        } ${isEditing ? 'hover:shadow-glass-elevated' : ''} relative z-10`}
+        } ${isEditing ? 'hover:shadow-glass-elevated cursor-pointer' : ''} relative z-10`}
       >
         <span className="font-heading font-semibold text-[15px] leading-none">
           {data?.label ?? id}
@@ -43,7 +42,7 @@ function CustomNode({ data, id }) {
         type="source"
         position={Position.Bottom}
         id="source"
-        className={`!w-4 !h-4 !bg-accent-purple !border-2 !border-white !top-[calc(50%+20px)] !left-1/2 !-translate-x-1/2 transition-all duration-200 ${isAddEdgeMode ? '!opacity-100 hover:!scale-125 z-20' : '!opacity-0 !pointer-events-none'}`}
+        className={`!w-4 !h-4 !bg-[var(--color-accent)] !border-2 !border-white !top-[calc(50%+20px)] !left-1/2 !-translate-x-1/2 transition-all duration-200 ${isEditing ? 'opacity-0 group-hover:!opacity-100 group-hover:!scale-125 z-20' : '!opacity-0 !pointer-events-none'}`}
       />
 
       {/* Distance / weight label */}

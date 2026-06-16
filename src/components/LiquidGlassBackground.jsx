@@ -78,53 +78,34 @@ void main() {
 
 /* ── Procedural Background Themes ── */
 export const THEMES = {
-  nebula: {
-    gradient: ['#0B0813', '#141026', '#0F0C1C', '#0A0810'],
+  glass: {
+    gradient: ['#0A0A0C', '#121216', '#0E0E12', '#08080A'],
     blobs: [
-      { cx: 250,  cy: 180,  r: 440, color: [139, 92, 246, 0.12] }, // vibrant purple
-      { cx: 1500, cy: 250,  r: 480, color: [6, 214, 160, 0.05] },  // teal
-      { cx: 900,  cy: 700,  r: 520, color: [59, 130, 246, 0.08] }, // blue
-      { cx: 1650, cy: 800,  r: 400, color: [245, 158, 11, 0.03] }, // subtle amber
-      { cx: 180,  cy: 850,  r: 440, color: [236, 72, 153, 0.08] }, // pink
-      { cx: 700,  cy: 120,  r: 360, color: [99, 102, 241, 0.10] }, // indigo
-      { cx: 1200, cy: 550,  r: 400, color: [16, 185, 129, 0.05] }, // emerald
-      { cx: 400,  cy: 500,  r: 380, color: [167, 139, 250, 0.12] }, // bright purple
+      { cx: 300,  cy: 200,  r: 500, color: [48, 114, 255, 0.12] },    // Deep blue
+      { cx: 1600, cy: 300,  r: 450, color: [255, 48, 144, 0.10] },    // Magenta/Pink
+      { cx: 800,  cy: 800,  r: 600, color: [64, 224, 208, 0.08] },    // Turquoise/Cyan
+      { cx: 100,  cy: 900,  r: 450, color: [142, 48, 255, 0.12] },    // Deep purple
+      { cx: 1200, cy: 700,  r: 500, color: [255, 120, 48, 0.06] },    // Warm subtle orange
     ]
   },
   cyberpunk: {
     gradient: ['#050B14', '#081220', '#030811', '#010408'],
     blobs: [
-      { cx: 300,  cy: 200,  r: 500, color: [6, 214, 160, 0.15] },   // bright neon green/teal
-      { cx: 1600, cy: 300,  r: 400, color: [255, 0, 128, 0.12] },   // hot pink
-      { cx: 800,  cy: 800,  r: 600, color: [0, 255, 255, 0.1] },    // cyan
-      { cx: 100,  cy: 900,  r: 450, color: [124, 58, 237, 0.15] },  // deep purple
+      { cx: 300,  cy: 200,  r: 500, color: [6, 214, 160, 0.15] },
+      { cx: 1600, cy: 300,  r: 400, color: [255, 0, 128, 0.12] },
+      { cx: 800,  cy: 800,  r: 600, color: [0, 255, 255, 0.1] },
+      { cx: 100,  cy: 900,  r: 450, color: [124, 58, 237, 0.15] },
     ]
   },
-  ocean: {
-    gradient: ['#001018', '#001A24', '#000812', '#000408'],
-    blobs: [
-      { cx: 400,  cy: 200,  r: 600, color: [0, 150, 255, 0.1] },
-      { cx: 1400, cy: 800,  r: 700, color: [0, 255, 150, 0.08] },
-      { cx: 900,  cy: 400,  r: 500, color: [0, 100, 255, 0.06] },
-      { cx: 200,  cy: 800,  r: 400, color: [0, 200, 255, 0.08] },
-    ]
-  },
-  light: {
-    gradient: ['#f5f0ff', '#eef4ff', '#f0faf8', '#fdf4f0'],
-    blobs: [
-      { cx: 250,  cy: 180,  r: 340, color: [124, 58, 237, 0.07] },
-      { cx: 1500, cy: 250,  r: 380, color: [6, 214, 160, 0.06] },
-      { cx: 900,  cy: 700,  r: 420, color: [59, 130, 246, 0.05] },
-      { cx: 1650, cy: 800,  r: 300, color: [245, 158, 11, 0.04] },
-      { cx: 180,  cy: 850,  r: 340, color: [236, 72, 153, 0.05] },
-    ]
-  }
+  light: { isGraphisual: true },
+  dark: { isGraphisual: true },
+  blueprint: { isGraphisual: true }
 };
 
 export const themeIds = Object.keys(THEMES);
 
 function createBackground(themeId) {
-  const theme = THEMES[themeId] || THEMES.nebula;
+  const theme = THEMES[themeId] || THEMES.glass;
   const W = 1920, H = 1080;
   const c = document.createElement('canvas');
   c.width = W; c.height = H;
@@ -172,11 +153,13 @@ function compileShader(gl, type, source) {
   return sh;
 }
 
-export default function LiquidGlassBackground({ themeId = 'nebula', bgImage = null }) {
+export default function LiquidGlassBackground({ themeId = 'glass', bgImage = null }) {
   const canvasRef = useRef(null);
   const rafRef = useRef(null);
 
   useEffect(() => {
+    if (['light', 'dark', 'blueprint'].includes(themeId)) return;
+
     const canvas = canvasRef.current;
     if (!canvas) return;
 
@@ -321,7 +304,7 @@ export default function LiquidGlassBackground({ themeId = 'nebula', bgImage = nu
         width: '100vw',
         height: '100vh',
         zIndex: 0,
-        display: 'block',
+        display: ['light', 'dark', 'blueprint'].includes(themeId) ? 'none' : 'block',
         pointerEvents: 'none',
       }}
     />

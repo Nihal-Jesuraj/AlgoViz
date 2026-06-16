@@ -1,4 +1,4 @@
-import React, { memo, useMemo, useState, useCallback, useRef, useEffect } from 'react';
+import { memo, useMemo, useState, useCallback, useRef, useEffect } from 'react';
 import {
   ReactFlow,
   Background,
@@ -28,7 +28,7 @@ function ArrowMarkers() {
         <marker
           id="arrow-default"
           viewBox="0 0 10 10"
-          refX="30" // push back by node radius (26) + padding (4)
+          refX="10"
           refY="5"
           markerWidth="6"
           markerHeight="6"
@@ -40,7 +40,7 @@ function ArrowMarkers() {
         <marker
           id="arrow-active"
           viewBox="0 0 10 10"
-          refX="30"
+          refX="10"
           refY="5"
           markerWidth="7"
           markerHeight="7"
@@ -52,7 +52,7 @@ function ArrowMarkers() {
         <marker
           id="arrow-visited"
           viewBox="0 0 10 10"
-          refX="30"
+          refX="10"
           refY="5"
           markerWidth="6"
           markerHeight="6"
@@ -64,7 +64,7 @@ function ArrowMarkers() {
         <marker
           id="arrow-in-mst"
           viewBox="0 0 10 10"
-          refX="30"
+          refX="10"
           refY="5"
           markerWidth="6"
           markerHeight="6"
@@ -76,7 +76,7 @@ function ArrowMarkers() {
         <marker
           id="arrow-in-path"
           viewBox="0 0 10 10"
-          refX="30"
+          refX="10"
           refY="5"
           markerWidth="7"
           markerHeight="7"
@@ -114,8 +114,9 @@ function WeightEditor({ edgeId, initialWeight, onSave, onCancel, position }) {
         top: position.y,
         transform: 'translate(-50%, -50%)',
       }}
+      onClick={(e) => e.stopPropagation()}
     >
-      <label className="text-[10px] uppercase font-heading font-semibold text-white/60 px-1">
+      <label className="text-[10px] uppercase font-heading font-semibold text-[var(--color-text-subtle)] px-1">
         Edge Weight
       </label>
       <input
@@ -131,6 +132,87 @@ function WeightEditor({ edgeId, initialWeight, onSave, onCancel, position }) {
   );
 }
 
+// Node Label Editor Overlay
+function NodeRenamer({ nodeId, initialLabel, onSave, onCancel, position }) {
+  const [label, setLabel] = useState(String(initialLabel ?? ''));
+  const inputRef = useRef(null);
+
+  useEffect(() => {
+    if (inputRef.current) {
+      inputRef.current.focus();
+      inputRef.current.select();
+    }
+  }, []);
+
+  const handleKeyDown = (e) => {
+    if (e.key === 'Enter') onSave(nodeId, label);
+    if (e.key === 'Escape') onCancel();
+  };
+
+  return (
+    <div
+      className="absolute z-50 glass-panel p-2 flex flex-col gap-2 rounded-lg"
+      style={{
+        left: position.x,
+        top: position.y,
+        transform: 'translate(-50%, -50%)',
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <label className="text-[10px] uppercase font-heading font-semibold text-[var(--color-text-subtle)] px-1">
+        Rename Node
+      </label>
+      <input
+        ref={inputRef}
+        type="text"
+        className="glass-input !w-32 !text-center !py-1"
+        value={label}
+        onChange={(e) => setLabel(e.target.value)}
+        onKeyDown={handleKeyDown}
+        onBlur={() => onSave(nodeId, label)}
+      />
+    </div>
+  );
+}
+
+// Context Menu Overlay
+function ContextMenu({ position, onAction, onCancel }) {
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') onCancel();
+    };
+    const handleClick = () => onCancel();
+    
+    window.addEventListener('keydown', handleKeyDown);
+    window.addEventListener('click', handleClick);
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      window.removeEventListener('click', handleClick);
+    };
+  }, [onCancel]);
+
+  return (
+    <div
+      className="absolute z-50 glass-panel p-1 flex flex-col gap-1 rounded-lg min-w-[120px]"
+      style={{
+        left: position.x,
+        top: position.y,
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      <button
+        className="px-3 py-1.5 text-sm text-left text-red-400 hover:bg-white/10 rounded-md transition-colors w-full"
+        onClick={() => {
+          onAction('delete');
+          onCancel();
+        }}
+      >
+        Delete
+      </button>
+    </div>
+  );
+}
+
 // Inner component to access useReactFlow
 function GraphCanvasInner({
   nodes = [],
@@ -140,11 +222,9 @@ function GraphCanvasInner({
   onConnect,
   nodeTypes: externalNodeTypes,
   edgeTypes: externalEdgeTypes,
-  editorMode = 'select',
   isEditing = false,
   isDirected = false,
   isWeighted = false,
-  onPaneClick,
   addNodeAtPosition,
   removeNode,
   removeEdge,
@@ -154,10 +234,16 @@ function GraphCanvasInner({
   updateEdgeWeight,
   startEditingEdge,
   cancelEditingEdge,
+  renameNode,
   isPlaying = false,
+  onNodeDragStop,
 }) {
   const reactFlowInstance = useReactFlow();
   const [weightEditorPos, setWeightEditorPos] = useState({ x: 0, y: 0 });
+  const [renamingNodeId, setRenamingNodeId] = useState(null);
+  const [renamerPos, setRenamerPos] = useState({ x: 0, y: 0 });
+  
+  const [contextMenu, setContextMenu] = useState(null); // { x, y, type: 'node' | 'edge', id }
 
   const nodeTypes = useMemo(
     () => externalNodeTypes || defaultNodeTypes,
@@ -180,9 +266,13 @@ function GraphCanvasInner({
     [externalEdgeTypes]
   );
 
-  // Handle pane click for addNode mode
+  // Handle pane click for addNode
   const handlePaneClick = useCallback((event) => {
-    if (!isEditing || editorMode !== 'addNode') return;
+    if (!isEditing) return;
+    
+    if (contextMenu) setContextMenu(null);
+    if (editingEdgeId) cancelEditingEdge();
+    if (renamingNodeId) setRenamingNodeId(null);
     
     // Check if we're clicking directly on the pane, not on a node/edge
     if (event.target.classList.contains('react-flow__pane')) {
@@ -194,47 +284,95 @@ function GraphCanvasInner({
       });
       addNodeAtPosition(position);
     }
-  }, [isEditing, editorMode, reactFlowInstance, addNodeAtPosition]);
+  }, [isEditing, reactFlowInstance, addNodeAtPosition, contextMenu, editingEdgeId, cancelEditingEdge, renamingNodeId]);
 
-  // Handle double click on edge for weight editing
-  const handleEdgeDoubleClick = useCallback((event, edge) => {
+  // Handle click on edge for weight editing
+  const handleEdgeClick = useCallback((event, edge) => {
     if (!isEditing || !isWeighted) return;
     event.stopPropagation();
     
-    // Convert click position to flow position for the editor overlay
-    const bounds = event.target.getBoundingClientRect();
     setWeightEditorPos({
-      x: event.clientX, // We'll use absolute screen coordinates for the overlay
+      x: event.clientX,
       y: event.clientY,
     });
     startEditingEdge(edge.id);
   }, [isEditing, isWeighted, startEditingEdge]);
 
+  // Handle double click on node for renaming
+  const handleNodeDoubleClick = useCallback((event, node) => {
+    if (!isEditing) return;
+    event.stopPropagation();
+    
+    setRenamerPos({
+      x: event.clientX,
+      y: event.clientY,
+    });
+    setRenamingNodeId(node.id);
+  }, [isEditing]);
+
+  // Context Menu Handlers
+  const onNodeContextMenu = useCallback((event, node) => {
+    if (!isEditing) return;
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'node',
+      id: node.id,
+    });
+  }, [isEditing]);
+
+  const onEdgeContextMenu = useCallback((event, edge) => {
+    if (!isEditing) return;
+    event.preventDefault();
+    setContextMenu({
+      x: event.clientX,
+      y: event.clientY,
+      type: 'edge',
+      id: edge.id,
+    });
+  }, [isEditing]);
+
+  const handleContextMenuAction = useCallback((action) => {
+    if (action === 'delete' && contextMenu) {
+      if (contextMenu.type === 'node') {
+        removeNode(contextMenu.id);
+      } else if (contextMenu.type === 'edge') {
+        removeEdge(contextMenu.id);
+      }
+    }
+  }, [contextMenu, removeNode, removeEdge]);
+
+  const handleRenameSave = useCallback((nodeId, label) => {
+    if (renameNode) {
+      renameNode(nodeId, label);
+    }
+    setRenamingNodeId(null);
+  }, [renameNode]);
+
   // Keyboard handlers (Delete, Esc)
   useEffect(() => {
     const handleKeyDown = (e) => {
       if (!isEditing) return;
-      if (e.key === 'Escape' && editingEdgeId) {
-        cancelEditingEdge();
+      if (e.key === 'Escape') {
+        if (editingEdgeId) cancelEditingEdge();
+        if (renamingNodeId) setRenamingNodeId(null);
+        if (contextMenu) setContextMenu(null);
       }
     };
     window.addEventListener('keydown', handleKeyDown);
     return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isEditing, editingEdgeId, cancelEditingEdge]);
+  }, [isEditing, editingEdgeId, cancelEditingEdge, renamingNodeId, contextMenu]);
 
-  // Cursor style based on mode
-  const getCursor = () => {
-    if (isPlaying) return 'default';
-    if (!isEditing) return 'grab';
-    if (editorMode === 'addNode') return 'crosshair';
-    if (editorMode === 'addEdge') return 'crosshair';
-    return 'default';
-  };
-
-  // Find currently editing edge
+  // Find currently editing elements
   const editingEdge = useMemo(
     () => edges.find((e) => e.id === editingEdgeId),
     [edges, editingEdgeId]
+  );
+  
+  const renamingNode = useMemo(
+    () => nodes.find((n) => n.id === renamingNodeId),
+    [nodes, renamingNodeId]
   );
 
   return (
@@ -246,8 +384,9 @@ function GraphCanvasInner({
         style={{
           boxShadow: 'inset 0 2px 12px rgba(0, 0, 0, 0.2)',
           background: 'transparent',
-          cursor: getCursor(),
+          cursor: isPlaying ? 'default' : (isEditing ? 'crosshair' : 'grab'),
         }}
+        onContextMenu={(e) => e.preventDefault()} // Prevent default context menu on entire canvas
       >
         <ReactFlow
           nodes={nodes}
@@ -258,7 +397,11 @@ function GraphCanvasInner({
           onPaneClick={handlePaneClick}
           onNodesDelete={onNodesDelete}
           onEdgesDelete={onEdgesDelete}
-          onEdgeDoubleClick={handleEdgeDoubleClick}
+          onEdgeClick={handleEdgeClick}
+          onNodeDoubleClick={handleNodeDoubleClick}
+          onNodeContextMenu={onNodeContextMenu}
+          onEdgeContextMenu={onEdgeContextMenu}
+          onNodeDragStop={onNodeDragStop}
           nodeTypes={nodeTypes}
           edgeTypes={edgeTypes}
           fitView
@@ -270,18 +413,19 @@ function GraphCanvasInner({
             type: 'custom',
             animated: false,
           }}
-          nodesDraggable={isEditing && editorMode === 'select' && !isPlaying}
-          nodesConnectable={isEditing && (editorMode === 'addEdge' || editorMode === 'select') && !isPlaying}
+          nodesDraggable={isEditing && !isPlaying}
+          nodesConnectable={isEditing && !isPlaying}
           connectionRadius={40}
-          elementsSelectable={isEditing && editorMode === 'select' && !isPlaying}
-          panOnDrag={!isEditing || editorMode === 'select' || editorMode === 'addNode'}
-          selectionOnDrag={isEditing && editorMode === 'select' && !isPlaying}
+          elementsSelectable={isEditing && !isPlaying}
+          panOnDrag={true} // Always allow panning by dragging the canvas
+          selectionOnDrag={false} // Disable selection box on drag to prioritize panning
+          connectionLineType="straight"
         >
           <Background
             variant="dots"
             gap={20}
             size={1.2}
-            color="rgba(255, 255, 255, 0.15)"
+            color="var(--color-bg-dots)"
           />
           <Controls
             position="bottom-left"
@@ -316,6 +460,26 @@ function GraphCanvasInner({
             position={weightEditorPos}
             onSave={updateEdgeWeight}
             onCancel={cancelEditingEdge}
+          />
+        )}
+        
+        {/* Node Renamer Overlay */}
+        {isEditing && renamingNode && (
+          <NodeRenamer
+            nodeId={renamingNode.id}
+            initialLabel={renamingNode.data?.label ?? renamingNode.id}
+            position={renamerPos}
+            onSave={handleRenameSave}
+            onCancel={() => setRenamingNodeId(null)}
+          />
+        )}
+
+        {/* Context Menu */}
+        {isEditing && contextMenu && (
+          <ContextMenu
+            position={{ x: contextMenu.x, y: contextMenu.y }}
+            onAction={handleContextMenuAction}
+            onCancel={() => setContextMenu(null)}
           />
         )}
       </div>

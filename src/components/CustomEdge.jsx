@@ -1,5 +1,8 @@
-import React, { memo } from 'react';
-import { getBezierPath, EdgeLabelRenderer, BaseEdge, useReactFlow, Position } from '@xyflow/react';
+import { memo } from 'react';
+import { EdgeLabelRenderer, BaseEdge, useReactFlow } from '@xyflow/react';
+
+const NODE_RADIUS = 28;
+const PARALLEL_EDGE_OFFSET = 24;
 
 const edgeStyles = {
   default: {
@@ -46,32 +49,64 @@ function CustomEdge({
   markerEnd,
   style: externalStyle,
 }) {
-  const { getNode } = useReactFlow();
+  const { getEdges, getNode } = useReactFlow();
   const sourceNode = getNode(source);
   const targetNode = getNode(target);
+  const allEdges = getEdges();
 
-  // Calculate center-to-center path. Fallback to handle coords if nodes somehow not found.
-  // The nodes are 52px wide/tall, so center offset is +26.
-  const sX = sourceNode && sourceNode.measured ? sourceNode.position.x + (sourceNode.measured.width / 2 || 26) : sourceX;
-  const sY = sourceNode && sourceNode.measured ? sourceNode.position.y + (sourceNode.measured.height / 2 || 26) : sourceY;
-  const tX = targetNode && targetNode.measured ? targetNode.position.x + (targetNode.measured.width / 2 || 26) : targetX;
-  const tY = targetNode && targetNode.measured ? targetNode.position.y + (targetNode.measured.height / 2 || 26) : targetY;
+  // Calculate center-to-center path. Always compute from node position with fallback size;
+  // only fall back to handle coords if node itself is missing. The source handle is positioned
+  // off-center (calc(50%+20px)), so we must not use handle coords as center proxy.
+  const NODE_SIZE = 52;
+  const sX = sourceNode ? sourceNode.position.x + (sourceNode.measured?.width ?? NODE_SIZE) / 2 : sourceX;
+  const sY = sourceNode ? sourceNode.position.y + (sourceNode.measured?.height ?? NODE_SIZE) / 2 : sourceY;
+  const tX = targetNode ? targetNode.position.x + (targetNode.measured?.width ?? NODE_SIZE) / 2 : targetX;
+  const tY = targetNode ? targetNode.position.y + (targetNode.measured?.height ?? NODE_SIZE) / 2 : targetY;
 
-  const dx = tX - sX;
-  const dy = tY - sY;
-  // Calculate dynamic handles based on relative position to ensure smooth curves
-  const sourcePosition = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? Position.Right : Position.Left) : (dy > 0 ? Position.Bottom : Position.Top);
-  const targetPosition = Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? Position.Left : Position.Right) : (dy > 0 ? Position.Top : Position.Bottom);
+  const isSelfLoop = source === target;
+  const hasReverseEdge = allEdges.some((edge) => edge.id !== id && edge.source === target && edge.target === source);
+  const hasParallelEdge = allEdges.some((edge) => edge.id !== id && edge.source === source && edge.target === target);
 
-  const [edgePath, labelX, labelY] = getBezierPath({
-    sourceX: sX,
-    sourceY: sY,
-    sourcePosition,
-    targetX: tX,
-    targetY: tY,
-    targetPosition,
-    curvature: 0.25, // smooth subtle curve
-  });
+  let edgePath;
+  let labelX;
+  let labelY;
+
+  if (isSelfLoop) {
+    const loopTop = sY - 88;
+    const loopRight = sX + 88;
+    edgePath = `M ${sX + NODE_RADIUS} ${sY - 6} C ${loopRight} ${loopTop}, ${sX - 8} ${loopTop}, ${sX - 8} ${sY - NODE_RADIUS}`;
+    labelX = sX + 44;
+    labelY = sY - 80;
+  } else {
+    const dx = tX - sX;
+    const dy = tY - sY;
+    const length = Math.max(Math.hypot(dx, dy), 1);
+    const ux = dx / length;
+    const uy = dy / length;
+    const startX = sX + ux * NODE_RADIUS;
+    const startY = sY + uy * NODE_RADIUS;
+    const endX = tX - ux * NODE_RADIUS;
+    const endY = tY - uy * NODE_RADIUS;
+    const midX = (startX + endX) / 2;
+    const midY = (startY + endY) / 2;
+
+    if (hasReverseEdge || hasParallelEdge) {
+      const edgeKey = `${source}-${target}`;
+      const reverseKey = `${target}-${source}`;
+      const offsetSign = edgeKey.localeCompare(reverseKey, undefined, { numeric: true }) <= 0 ? 1 : -1;
+      const nx = -uy * PARALLEL_EDGE_OFFSET * offsetSign;
+      const ny = ux * PARALLEL_EDGE_OFFSET * offsetSign;
+      const controlX = midX + nx;
+      const controlY = midY + ny;
+      edgePath = `M ${startX} ${startY} Q ${controlX} ${controlY} ${endX} ${endY}`;
+      labelX = controlX;
+      labelY = controlY;
+    } else {
+      edgePath = `M ${startX} ${startY} L ${endX} ${endY}`;
+      labelX = midX;
+      labelY = midY;
+    }
+  }
 
   const status = data?.status || 'default';
   const currentStyle = edgeStyles[status] || edgeStyles.default;
@@ -92,13 +127,13 @@ function CustomEdge({
         id={id}
         path={edgePath}
         markerEnd={markerEnd}
+        className={`edge-${status} transition-all duration-300`}
         style={{
           ...externalStyle,
           stroke: currentStyle.stroke,
           strokeWidth: currentStyle.strokeWidth,
           filter: currentStyle.filter,
           strokeDasharray: currentStyle.strokeDasharray,
-          transition: 'stroke 0.3s ease, stroke-width 0.3s ease, filter 0.3s ease',
         }}
       />
 
@@ -112,15 +147,6 @@ function CustomEdge({
               position: 'absolute',
               transform: `translate(-50%, -50%) translate(${labelX}px, ${labelY}px)`,
               pointerEvents: isEditing ? 'auto' : 'none',
-              background: 'rgba(20, 15, 30, 0.85)',
-              padding: '4px 10px',
-              borderRadius: '20px',
-              border: '1px solid rgba(255, 255, 255, 0.15)',
-              backdropFilter: 'blur(8px)',
-              fontSize: '11px',
-              fontWeight: '600',
-              color: '#F8FAFC',
-              boxShadow: '0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)',
             }}
           >
             {data.weight}

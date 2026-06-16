@@ -20,6 +20,8 @@ function ControlsBar({
   currentStep = 0,
   totalSteps = 0,
   disabled = false,
+  onAISolve = null,
+  isSolving = false,
 }) {
   const buttonBase =
     'glass-button !rounded-full !p-2.5 transition-all duration-200 disabled:opacity-40 disabled:cursor-not-allowed disabled:hover:!transform-none disabled:hover:!shadow-none';
@@ -46,6 +48,27 @@ function ControlsBar({
     >
       {/* Left — Transport controls */}
       <div className="flex items-center gap-1.5">
+        {/* AI Solve Button (conditionally rendered) */}
+        {onAISolve && (
+          <>
+            <motion.button
+              className="glass-button !py-2 !px-4 !rounded-full shadow-purple-glow primary font-semibold tracking-wide flex items-center gap-2"
+              onClick={onAISolve}
+              disabled={isSolving}
+              whileTap={{ scale: 0.95 }}
+              title="Solve Problem using AI"
+            >
+              {isSolving ? (
+                <div className="w-4 h-4 border-2 border-white/20 border-t-white rounded-full animate-spin" />
+              ) : (
+                <span className="text-[var(--color-accent)] text-lg leading-none mt-[-2px]">✧</span>
+              )}
+              <span className="text-xs">AI Solve</span>
+            </motion.button>
+            <div className="w-px h-6 bg-black/10 mx-1" />
+          </>
+        )}
+
         {/* Step Back */}
         <motion.button
           id="btn-step-back"
@@ -125,7 +148,7 @@ function ControlsBar({
           value={sliderValue}
           onChange={handleSpeedSlider}
           disabled={disabled}
-          className="w-20 h-1.5 rounded-full appearance-none cursor-pointer accent-accent-purple bg-black/10 disabled:opacity-40"
+          className="w-20 h-1.5 rounded-full appearance-none cursor-pointer accent-[var(--color-accent)] bg-black/10 disabled:opacity-40"
           title={`Speed: ${speed}x`}
         />
       </div>

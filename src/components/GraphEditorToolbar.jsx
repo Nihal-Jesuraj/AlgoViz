@@ -15,8 +15,6 @@ import {
 } from 'lucide-react';
 
 export default function GraphEditorToolbar({
-  editorMode,
-  setEditorMode,
   isEditing,
   toggleEditing,
   isDirected,
@@ -32,7 +30,6 @@ export default function GraphEditorToolbar({
   autoLayout,
   nodeCount,
   edgeCount,
-  onOpenInputModal,
 }) {
   return (
     <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 flex flex-col items-center gap-2">
@@ -45,20 +42,10 @@ export default function GraphEditorToolbar({
           onClick={toggleEditing}
           whileTap={{ scale: 0.95 }}
         >
-          <Settings2 size={16} className={isEditing ? 'text-white' : 'text-accent-purple'} />
+          <Settings2 size={16} className={isEditing ? 'text-[var(--color-text)]' : 'text-accent-purple'} />
           <span className="font-heading font-semibold text-sm">
             {isEditing ? 'Exit Editor Mode' : 'Enter Editor Mode'}
           </span>
-        </motion.button>
-
-        <motion.button
-          className="glass-button !px-4 !py-2 !rounded-full shadow-glass-elevated hover:!shadow-purple-glow"
-          onClick={onOpenInputModal}
-          whileTap={{ scale: 0.95 }}
-          title="Import, Generate, or Save Graphs"
-        >
-          <LayoutGrid size={16} className="text-accent-purple" />
-          <span className="font-heading font-semibold text-sm">Tools</span>
         </motion.button>
       </div>
 
@@ -72,42 +59,9 @@ export default function GraphEditorToolbar({
             exit={{ opacity: 0, y: -10, scale: 0.95 }}
             transition={{ duration: 0.2 }}
           >
-            {/* Modes */}
-            <div className="flex bg-black/20 rounded-lg p-1 gap-1">
-              <button
-                className={`p-1.5 rounded-md transition-colors ${
-                  editorMode === 'select' ? 'bg-white/20 text-white shadow-sm' : 'text-white/60 hover:text-white hover:bg-white/10'
-                }`}
-                onClick={() => setEditorMode('select')}
-                title="Select (V)"
-              >
-                <MousePointer2 size={18} />
-              </button>
-              <button
-                className={`p-1.5 rounded-md transition-colors ${
-                  editorMode === 'addNode' ? 'bg-accent-purple/40 text-white shadow-sm' : 'text-white/60 hover:text-white hover:bg-white/10'
-                }`}
-                onClick={() => setEditorMode('addNode')}
-                title="Add Node (N)"
-              >
-                <PlusCircle size={18} />
-              </button>
-              <button
-                className={`p-1.5 rounded-md transition-colors ${
-                  editorMode === 'addEdge' ? 'bg-accent-teal/40 text-white shadow-sm' : 'text-white/60 hover:text-white hover:bg-white/10'
-                }`}
-                onClick={() => setEditorMode('addEdge')}
-                title="Add Edge (E)"
-              >
-                <GitCommit size={18} className="transform rotate-45" />
-              </button>
-            </div>
-
-            <div className="w-px h-6 bg-white/10 mx-1" />
-
             {/* Toggles */}
             <div className="flex items-center gap-3 px-2">
-              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-white/80 hover:text-white">
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
                 <input
                   type="checkbox"
                   checked={isDirected}
@@ -116,7 +70,7 @@ export default function GraphEditorToolbar({
                 />
                 Directed
               </label>
-              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-white/80 hover:text-white">
+              <label className="flex items-center gap-1.5 cursor-pointer text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text)]">
                 <input
                   type="checkbox"
                   checked={isWeighted}
@@ -132,7 +86,7 @@ export default function GraphEditorToolbar({
             {/* Undo/Redo */}
             <div className="flex gap-1">
               <button
-                className="p-1.5 rounded-md text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent"
+                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--glass-fill)] disabled:opacity-30 disabled:hover:bg-transparent"
                 onClick={undo}
                 disabled={!canUndo}
                 title="Undo (Ctrl+Z)"
@@ -140,7 +94,7 @@ export default function GraphEditorToolbar({
                 <Undo2 size={16} />
               </button>
               <button
-                className="p-1.5 rounded-md text-white/60 hover:text-white hover:bg-white/10 disabled:opacity-30 disabled:hover:bg-transparent"
+                className="p-1.5 rounded-md text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--glass-fill)] disabled:opacity-30 disabled:hover:bg-transparent"
                 onClick={redo}
                 disabled={!canRedo}
                 title="Redo (Ctrl+Y)"
@@ -183,7 +137,7 @@ export default function GraphEditorToolbar({
             </div>
             
             {/* Stats */}
-            <div className="ml-2 px-2 py-1 bg-black/20 rounded-md text-[10px] font-mono text-white/50 border border-white/5 shadow-inner">
+            <div className="ml-2 px-2 py-1 bg-[var(--glass-fill)] rounded-md text-[10px] font-mono text-[var(--color-text-subtle)] border border-[var(--glass-border)] shadow-inner">
               N:{nodeCount} E:{edgeCount}
             </div>
           </motion.div>

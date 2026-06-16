@@ -33,7 +33,7 @@ function GridCanvas({ grid = [], cellSize = 48 }) {
       className="relative w-full h-full flex items-center justify-center overflow-auto"
       style={{
         background: 'transparent',
-        backgroundImage: 'radial-gradient(circle, rgba(255,255,255,0.1) 1px, transparent 1px)',
+        backgroundImage: 'radial-gradient(circle, var(--color-bg-dots) 1px, transparent 1px)',
         backgroundSize: '20px 20px',
       }}
     >

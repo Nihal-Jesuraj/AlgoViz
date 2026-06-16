@@ -79,11 +79,11 @@ function StatePanel({ algorithmState = {}, stepDescription = '', isExpanded = tr
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -10 }}
           >
-            <div className="flex items-center gap-1.5 mb-1.5 text-accent-purple">
+            <div className="flex items-center gap-1.5 mb-1.5 text-[var(--color-accent)]">
               <Terminal size={14} />
               <span className="font-heading text-[10px] font-bold uppercase tracking-wider">Dry Run</span>
             </div>
-            <p className="text-xs text-white/90 font-mono leading-relaxed min-h-[40px]">
+            <p className="text-xs text-[var(--color-text)] font-mono leading-relaxed min-h-[40px]">
               <TypewriterText text={stepDescription} />
             </p>
           </motion.div>
@@ -97,7 +97,7 @@ function StatePanel({ algorithmState = {}, stepDescription = '', isExpanded = tr
         onClick={onToggle}
       >
         <div className="flex items-center gap-2">
-          <Layers size={14} className="text-accent-purple" />
+          <Layers size={14} className="text-[var(--color-accent)]" />
           <span className="font-heading text-xs font-semibold">Algorithm State</span>
         </div>
         {isExpanded ? <ChevronDown size={14} /> : <ChevronUp size={14} />}
@@ -116,19 +116,19 @@ function StatePanel({ algorithmState = {}, stepDescription = '', isExpanded = tr
             {/* Tabs */}
             <div className="flex border-b border-white/10 bg-black/20">
               <button 
-                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'data' ? 'text-accent-purple border-b-2 border-accent-purple bg-white/5' : 'text-white/50 hover:text-white/80'}`}
+                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'data' ? 'text-[var(--color-accent)] border-b-2 border-[var(--color-accent)] bg-[var(--glass-fill)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setActiveTab('data')}
               >
                 Structures
               </button>
               <button 
-                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'distances' ? 'text-accent-cyan border-b-2 border-accent-cyan bg-white/5' : 'text-white/50 hover:text-white/80'}`}
+                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'distances' ? 'text-accent-cyan border-b-2 border-accent-cyan bg-[var(--glass-fill)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setActiveTab('distances')}
               >
                 Distances
               </button>
               <button 
-                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'parent' ? 'text-accent-teal border-b-2 border-accent-teal bg-white/5' : 'text-white/50 hover:text-white/80'}`}
+                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'parent' ? 'text-accent-teal border-b-2 border-accent-teal bg-[var(--glass-fill)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setActiveTab('parent')}
               >
                 Parents
@@ -223,7 +223,7 @@ function StatePanel({ algorithmState = {}, stepDescription = '', isExpanded = tr
                   )}
                   
                   {!hasData && (hasDistances || hasParent) && (
-                    <p className="text-[10px] text-white/40 italic">Check other tabs for data</p>
+                    <p className="text-[10px] text-[var(--color-text-subtle)] italic">Check other tabs for data</p>
                   )}
                 </div>
               )}
@@ -251,7 +251,7 @@ function StatePanel({ algorithmState = {}, stepDescription = '', isExpanded = tr
                       </tbody>
                     </table>
                   ) : (
-                    <p className="text-[10px] text-white/40 italic">No distances recorded yet.</p>
+                    <p className="text-[10px] text-[var(--color-text-subtle)] italic">No distances recorded yet.</p>
                   )}
                 </div>
               )}
@@ -279,7 +279,7 @@ function StatePanel({ algorithmState = {}, stepDescription = '', isExpanded = tr
                       </tbody>
                     </table>
                   ) : (
-                    <p className="text-[10px] text-white/40 italic">No parent pointers recorded yet.</p>
+                    <p className="text-[10px] text-[var(--color-text-subtle)] italic">No parent pointers recorded yet.</p>
                   )}
                 </div>
               )}

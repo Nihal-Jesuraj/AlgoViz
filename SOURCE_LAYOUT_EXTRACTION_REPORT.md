@@ -1,0 +1,29 @@
+# Source Layout Extraction Report
+
+- g20: failed - No candidate images found on source page
+- g21: failed - No candidate images found on source page
+- g22: failed - No candidate images found on source page
+- g23: failed - No candidate images found on source page
+- g25: success (6/6, confidence 1, model gemini-flash-latest)
+- g26: success (6/6, confidence 1, model gemini-flash-latest)
+- g27: success (6/6, confidence 1, model gemini-flash-latest)
+- g29: failed - No candidate images found on source page
+- g30: success (6/6, confidence 1, model gemini-flash-latest)
+- g32: success (5/5, confidence 1, model gemini-flash-latest)
+- g33: success (6/6, confidence 0.9, model gemini-flash-latest)
+- g34: success (6/6, confidence 1, model gemini-flash-latest)
+- g35: failed - No candidate images found on source page
+- g37: success (6/6, confidence 1, model gemini-flash-latest)
+- g39: success (6/6, confidence 0.9, model gemini-flash-latest)
+- g41: success (6/6, confidence 1, model gemini-flash-latest)
+- g42: success (6/6, confidence 1, model gemini-flash-latest)
+- g43: failed - No candidate images found on source page
+- g44: failed - No image produced a complete layout. | https://assets.leetcode.com/uploads/2021/05/02/reduntant1-1-graph.jpg: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later. | https://assets.leetcode.com/uploads/2021/05/02/reduntant1-2-graph.jpg: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later.
+- g45: failed - No candidate images found on source page
+- g46: failed - No candidate images found on source page
+- g48: success (7/7, confidence 1, model gemini-flash-latest)
+- g49: failed - No candidate images found on source page
+- g50: success (8/8, confidence 0.9, model gemini-flash-latest)
+- g51: failed - No image produced a complete layout. | https://assets.leetcode.com/uploads/2019/09/03/1537_ex1_2.png: Unexpected token 'T', "The provid"... is not valid JSON
+- g52: failed - No image produced a complete layout. | https://media.geeksforgeeks.org/img-practice/PROD/addEditProblem/708502/Web/Other/a27f9040-9783-4386-92f9-b8684c75db07_1685087852.png: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-flash-latest:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later. | https://media.geeksforgeeks.org/img-practice/PROD/addEditProblem/708502/Web/Other/7e12629a-ba31-411e-b6ac-ccf5a8baa6a3_1685087852.png: [GoogleGenerativeAI Error]: Error fetching from https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent: [503 Service Unavailable] This model is currently experiencing high demand. Spikes in demand are usually temporary. Please try again later. | https://media.geeksforgeeks.org/img-practice/PROD/addEditProblem/708502/Web/Other/fb781bda-91d6-4920-96a8-c976412c3ada_1685087852.png: confidence 0.1 below 0.78
+- g53: failed - No image produced a complete layout. | https://media.geeksforgeeks.org/img-practice/prod/addEditProblem/700537/Web/Other/blobid0_1745469108.jpg: confidence 0.1 below 0.78 | https://media.geeksforgeeks.org/img-practice/prod/addEditProblem/700537/Web/Other/blobid4_1745469310.jpg: confidence 0.1 below 0.78

@@ -29,6 +29,7 @@ export function parseAdjacencyList(text) {
     }
 
     const edges = [];
+    const seenEdges = new Set();
     let isWeighted = false;
     let isDirected = true; // Assume directed initially, we might not know
 
@@ -46,14 +47,17 @@ export function parseAdjacencyList(text) {
           isWeighted = true;
         }
 
-        const edgeId = `e${u}-${target}`;
-        edges.push({
-          id: edgeId,
-          type: 'custom',
-          source: String(u),
-          target,
-          data: weight !== null ? { weight, status: 'default' } : { status: 'default' },
-        });
+        const edgeKey = `${u}-${target}`;
+        if (!seenEdges.has(edgeKey)) {
+          edges.push({
+            id: `e${u}-${target}`,
+            type: 'custom',
+            source: String(u),
+            target,
+            data: weight !== null ? { weight, status: 'default' } : { status: 'default' },
+          });
+          seenEdges.add(edgeKey);
+        }
       }
     }
 
@@ -116,20 +120,27 @@ export function parseEdgeList(text) {
       data: { label: id, status: 'default' },
     }));
 
-    const edges = list.map(edge => {
-      if (!Array.isArray(edge) || edge.length < 2) return null;
+    const seenEdges = new Set();
+    const edges = [];
+    
+    list.forEach(edge => {
+      if (!Array.isArray(edge) || edge.length < 2) return;
       const source = String(edge[0]);
       const target = String(edge[1]);
       const weight = edge.length >= 3 ? edge[2] : null;
       
-      return {
-        id: `e${source}-${target}`,
-        type: 'custom',
-        source,
-        target,
-        data: weight !== null ? { weight, status: 'default' } : { status: 'default' },
-      };
-    }).filter(Boolean);
+      const edgeKey = `${source}-${target}`;
+      if (!seenEdges.has(edgeKey)) {
+        edges.push({
+          id: `e${source}-${target}`,
+          type: 'custom',
+          source,
+          target,
+          data: weight !== null ? { weight, status: 'default' } : { status: 'default' },
+        });
+        seenEdges.add(edgeKey);
+      }
+    });
 
     return { nodes, edges, isWeighted, isDirected: false }; // Assume undirected for edge list, users can toggle
   } catch (e) {
@@ -158,6 +169,11 @@ export function parseLeetCodeFormat(text) {
         }
         // Could be adjacency list or edge list, let's try edge list first if it has 2-3 elements per sub-array consistently
         if (parsed.every(arr => arr.length === 2 || arr.length === 3)) {
+            // Ambiguous: could be edge list [[0,1],[1,2]] or adjacency list [[1,3],[0,2],[1,3],[0,2]]
+            // If V entries for V nodes (no self-loops), it's likely adjacency list
+            if (parsed.length === maxVal + 1 && !parsed.some((arr, idx) => arr.includes(idx))) {
+                return parseAdjacencyList(cleanText);
+            }
             return parseEdgeList(cleanText);
         }
       }

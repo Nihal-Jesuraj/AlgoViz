@@ -16,11 +16,11 @@ export default {
         },
         accent: {
           purple: {
-            DEFAULT: '#7C3AED',
-            light: '#9B8AFB',
-            lighter: '#EDE9FE',
-            dark: '#5B21B6',
-            glow: 'rgba(124, 58, 237, 0.15)',
+            DEFAULT: 'var(--color-purple, #7C3AED)',
+            light: 'var(--color-purple-light, #9B8AFB)',
+            lighter: 'var(--color-purple-lighter, #EDE9FE)',
+            dark: 'var(--color-purple-dark, #5B21B6)',
+            glow: 'var(--color-purple-glow, rgba(124, 58, 237, 0.15))',
           },
           teal: {
             DEFAULT: '#06D6A0',

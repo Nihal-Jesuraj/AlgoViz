@@ -21,6 +21,10 @@
   --color-purple: #8B5CF6;
   --color-purple-light: #A78BFA;
   --color-purple-lighter: #DDD6FE;
+  --color-purple-glow: rgba(var(--color-highlight-rgb), 0.15);
+  --color-highlight-rgb: var(--color-highlight-rgb);
+  --color-bg-dots: rgba(255, 255, 255, 0.15);
+
   --color-teal: #10B981;
   --color-teal-light: #34D399;
   --color-cyan: #06B6D4;
@@ -171,7 +175,7 @@ body {
   .glass-input:focus {
     background: rgba(30, 25, 45, 0.85);
     border-color: var(--color-purple);
-    box-shadow: 0 0 0 3px rgba(139, 92, 246, 0.20);
+    box-shadow: 0 0 0 3px rgba(var(--color-highlight-rgb), 0.20);
   }
 
   .glass-input::placeholder {
@@ -197,6 +201,7 @@ body {
   cursor: grab;
   user-select: none;
   position: relative;
+  letter-spacing: 0;
   /* Liquid glass base */
   backdrop-filter: blur(12px) saturate(180%);
   -webkit-backdrop-filter: blur(12px) saturate(180%);
@@ -268,14 +273,14 @@ body {
 }
 
 .graph-node.node-current {
-  background: rgba(139, 92, 246, 0.30);
-  border: 2px solid #C4B5FD;
+  background: rgba(var(--color-highlight-rgb), 0.30);
+  border: 2px solid var(--color-purple-light);
   color: #FFFFFF;
   box-shadow:
-    0 0 30px rgba(139, 92, 246, 0.60),
-    0 0 12px rgba(139, 92, 246, 0.30),
+    0 0 30px rgba(var(--color-highlight-rgb), 0.60),
+    0 0 12px rgba(var(--color-highlight-rgb), 0.30),
     inset 0 1px 4px rgba(255, 255, 255, 0.4),
-    inset 0 -2px 6px rgba(139, 92, 246, 0.20);
+    inset 0 -2px 6px rgba(var(--color-highlight-rgb), 0.20);
   transform: scale(1.18);
   animation: glass-glow-pulse 2s ease-in-out infinite;
 }
@@ -298,7 +303,7 @@ body {
 .graph-node.node-visited {
   background: rgba(6, 214, 160, 0.20);
   border: 2px solid rgba(6, 214, 160, 0.45);
-  color: #065F46;
+  color: #ECFDF5;
   box-shadow:
     0 0 16px rgba(6, 214, 160, 0.15),
     0 4px 10px rgba(6, 214, 160, 0.08),
@@ -318,7 +323,7 @@ body {
 .graph-node.node-in-path {
   background: rgba(16, 185, 129, 0.25);
   border: 2px solid rgba(16, 185, 129, 0.5);
-  color: #064E3B;
+  color: #ECFDF5;
   box-shadow:
     0 0 20px rgba(16, 185, 129, 0.20),
     0 4px 12px rgba(16, 185, 129, 0.10),
@@ -364,12 +369,13 @@ body {
   font-family: var(--font-mono);
   font-size: 11px;
   font-weight: 500;
-  color: var(--color-text-muted);
-  background: rgba(255, 255, 255, 0.85);
-  padding: 1px 6px;
-  border-radius: 4px;
+  color: #F8FAFC;
+  background: rgba(15, 12, 25, 0.86);
+  padding: 2px 7px;
+  border-radius: 999px;
   white-space: nowrap;
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.16);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.22);
 }
 
 /* ---- Edge Weight Label ---- */
@@ -378,18 +384,18 @@ body {
   font-size: 11px;
   font-weight: 600;
   color: var(--color-text);
-  background: rgba(255, 255, 255, 0.85);
-  backdrop-filter: blur(4px);
-  padding: 2px 8px;
-  border-radius: 6px;
-  border: 1px solid rgba(0, 0, 0, 0.08);
+  background: rgba(15, 12, 25, 0.88);
+  backdrop-filter: blur(8px);
+  padding: 4px 10px;
+  border-radius: 999px;
+  border: 1px solid rgba(255, 255, 255, 0.16);
   pointer-events: none;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.25);
 }
 
 /* ---- Code Panel Styles ---- */
 .code-panel-container {
-  background: #1E1E2E;
+  background: var(--color-surface);
   border-radius: 12px;
   overflow: hidden;
   display: flex;
@@ -417,9 +423,9 @@ body {
 }
 
 .code-line.active-line {
-  background: linear-gradient(90deg, rgba(139, 92, 246, 0.4) 0%, rgba(139, 92, 246, 0.05) 100%);
-  border-left: 3px solid #C4B5FD;
-  box-shadow: inset 0 0 16px rgba(139, 92, 246, 0.4);
+  background: linear-gradient(90deg, rgba(var(--color-highlight-rgb), 0.4) 0%, rgba(var(--color-highlight-rgb), 0.05) 100%);
+  border-left: 3px solid var(--color-purple-light);
+  box-shadow: inset 0 0 16px rgba(var(--color-highlight-rgb), 0.4);
   padding-left: 13px;
 }
 
@@ -428,14 +434,14 @@ body {
   width: 36px;
   text-align: right;
   padding-right: 16px;
-  color: rgba(255, 255, 255, 0.25);
+  color: var(--color-text-subtle);
   font-size: 12px;
   user-select: none;
   flex-shrink: 0;
 }
 
 .code-line.active-line .code-line-number {
-  color: #C4B5FD;
+  color: var(--color-purple-light);
 }
 
 /* ---- Difficulty Pills ---- */
@@ -654,10 +660,10 @@ body {
 }
 
 .grid-cell.cell-current {
-  background: rgba(139, 92, 246, 0.30);
-  border: 2px solid #C4B5FD;
+  background: rgba(var(--color-highlight-rgb), 0.30);
+  border: 2px solid var(--color-purple-light);
   color: #FFFFFF;
-  box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), inset 0 1px 3px rgba(255,255,255,0.4);
+  box-shadow: 0 0 20px rgba(var(--color-highlight-rgb), 0.5), inset 0 1px 3px rgba(255,255,255,0.4);
   transform: scale(1.08);
   z-index: 1;
 }
@@ -684,10 +690,10 @@ body {
 }
 
 .grid-cell.cell-source {
-  background: rgba(139, 92, 246, 0.25);
-  border: 2px solid #C4B5FD;
+  background: rgba(var(--color-highlight-rgb), 0.25);
+  border: 2px solid var(--color-purple-light);
   color: #FFFFFF;
-  box-shadow: 0 0 16px rgba(139, 92, 246, 0.4), inset 0 1px 3px rgba(255,255,255,0.4);
+  box-shadow: 0 0 16px rgba(var(--color-highlight-rgb), 0.4), inset 0 1px 3px rgba(255,255,255,0.4);
 }
 
 .grid-cell.cell-target {
@@ -724,3 +730,215 @@ body {
   color: #FEF08A;
   box-shadow: inset 0 1px 2px rgba(255,255,255,0.2);
 }
+
+/* ============================================
+   Graphisual Themes Overrides
+   ============================================ */
+
+/* === GRAPHISUAL: LIGHT === */
+html[data-theme="light"] {
+  --color-paper: #e5e0d8;
+  --color-surface: #f1eee9;
+  --color-surface-hover: #f8f6f2;
+  --color-text: #2a2520;
+  --color-text-muted: #5a544c;
+  --color-accent: #2B6B2B;
+  --shadow-raised: 0px 0px 0px 1px rgba(50, 45, 40, 0.2);
+  --shadow-premium: 0px 0px 0px 1px rgba(50, 45, 40, 0.2);
+  --color-node-stroke: #8a847a;
+  --color-edge-default: #8a847a;
+  --color-edge-visited: #2B6B2B;
+  --color-edge-path: #b89040;
+  --color-edge-current: #2B6B2B;
+
+  --color-purple: #2B6B2B;
+  --color-purple-light: #3D8C3D;
+  --color-purple-lighter: #a0d4a0;
+  --color-purple-glow: rgba(43, 107, 43, 0.15);
+  --color-highlight-rgb: 43, 107, 43;
+  --color-bg-dots: rgba(0, 0, 0, 0.1);
+}
+
+/* === GRAPHISUAL: DARK === */
+html[data-theme="dark"] {
+  --color-paper: #1a1a1e;
+  --color-surface: #242428;
+  --color-surface-hover: #2e2e32;
+  --color-text: #e8e6e3;
+  --color-text-muted: #9a9590;
+  --color-accent: #6bc96b;
+  --shadow-raised: 2px 2px 4px rgba(0, 0, 0, 0.4), 1px 1px 2px rgba(0, 0, 0, 0.25);
+  --shadow-premium: inset 0px 2px 4px 0px rgba(255, 255, 255, 0.08), 0px 0.75px 0.75px -0.75px rgba(0, 0, 0, 0.5), 0px 2px 2px -1.5px rgba(0, 0, 0, 0.48), 0px 4.4px 4.4px -2.25px rgba(0, 0, 0, 0.45), 0px 9.8px 9.8px -3px rgba(0, 0, 0, 0.4), 0px 25px 25px -3.75px rgba(0, 0, 0, 0.2), 0px 0px 0px 1px rgba(255, 255, 255, 0.1);
+  --color-node-stroke: #9a9590;
+  --color-edge-default: #9a9590;
+  --color-edge-visited: #6bc96b;
+  --color-edge-path: #e6a23c;
+  --color-edge-current: #5ab85a;
+
+  --color-purple: #6bc96b;
+  --color-purple-light: #5ab85a;
+  --color-purple-lighter: #2a4a2a;
+  --color-purple-glow: rgba(107, 201, 107, 0.15);
+  --color-highlight-rgb: 107, 201, 107;
+  --color-bg-dots: rgba(255, 255, 255, 0.15);
+}
+
+/* === GRAPHISUAL: BLUEPRINT === */
+html[data-theme="blueprint"] {
+  --color-paper: #1a5490;
+  --color-surface: #1f5c98;
+  --color-surface-hover: #2568a8;
+  --color-text: #ffffff;
+  --color-text-muted: #c8e0f0;
+  --color-accent: #90d8f0;
+  --shadow-raised: 2px 2px 4px rgba(10, 40, 70, 0.4), 1px 1px 2px rgba(10, 40, 70, 0.25);
+  --shadow-premium: inset 0px 1px 2px 0px rgba(255, 255, 255, 0.3), 3px 3px 4px rgba(10, 40, 70, 0.22), 8px 8px 6px rgba(10, 40, 70, 0.16), 0px 0px 10px rgba(10, 40, 70, 0.25);
+  --color-node-stroke: #5090c0;
+  --color-edge-default: #5090c0;
+  --color-edge-visited: #60d8c8;
+  --color-edge-path: #f0c050;
+  --color-edge-current: #90d8f0;
+
+  --color-purple: #90d8f0;
+  --color-purple-light: #70c0e0;
+  --color-purple-lighter: #1f5c98;
+  --color-purple-glow: rgba(144, 216, 240, 0.15);
+  --color-highlight-rgb: 144, 216, 240;
+  --color-bg-dots: rgba(255, 255, 255, 0.15);
+}
+
+/* Base Body Application */
+html[data-theme] body {
+  background-color: var(--color-paper);
+  color: var(--color-text);
+  background-image: none;
+}
+
+/* Glass panel/card overrides */
+html[data-theme] .glass-card,
+html[data-theme] .glass-panel,
+html[data-theme] .glass-nav,
+html[data-theme] .glass-button,
+html[data-theme] .glass-input {
+  background: var(--color-surface);
+  border: 1px solid var(--color-node-stroke);
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: var(--shadow-raised);
+  color: var(--color-text);
+}
+
+html[data-theme] .glass-button {
+  background: var(--color-surface-hover);
+}
+
+html[data-theme] .glass-button:hover {
+  background: var(--color-surface);
+  box-shadow: var(--shadow-premium);
+}
+
+html[data-theme] .glass-button.primary {
+  background: var(--color-accent);
+  border-color: var(--color-accent);
+  color: #fff;
+}
+
+html[data-theme] .glass-input {
+  background: var(--color-surface-hover);
+  box-shadow: inset 1px 1px 3px rgba(0,0,0,0.1);
+}
+
+/* Node Overrides */
+html[data-theme] .graph-node {
+  background: var(--color-surface) !important;
+  border: 2px solid var(--color-node-stroke) !important;
+  color: var(--color-text) !important;
+  box-shadow: var(--shadow-premium) !important;
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
+}
+
+html[data-theme] .graph-node::before {
+  display: none !important;
+}
+
+/* Node States */
+html[data-theme] .graph-node.node-visited {
+  border-color: var(--color-edge-visited) !important;
+  background: rgba(43, 107, 43, 0.1) !important;
+  box-shadow: 0 0 12px rgba(43, 107, 43, 0.15) !important;
+}
+
+html[data-theme] .graph-node.node-current {
+  border-color: var(--color-accent) !important;
+  background: rgba(43, 107, 43, 0.15) !important;
+  border-width: 3px !important;
+  transform: scale(1.15) !important;
+  box-shadow: 0 0 20px rgba(43, 107, 43, 0.3) !important;
+  animation: glass-glow-pulse 2s ease-in-out infinite !important;
+}
+
+html[data-theme] .graph-node.node-current::after {
+  border-color: rgba(43, 107, 43, 0.4) !important;
+}
+
+html[data-theme] .graph-node.node-queued {
+  border-color: #d86840 !important;
+  background: rgba(216, 104, 64, 0.1) !important;
+  box-shadow: 0 0 12px rgba(216, 104, 64, 0.15) !important;
+  transform: scale(1.05) !important;
+}
+
+html[data-theme] .graph-node.node-in-path {
+  border-color: var(--color-edge-path) !important;
+  background: rgba(184, 144, 64, 0.15) !important;
+  border-width: 3px !important;
+  transform: scale(1.1) !important;
+  box-shadow: 0 0 15px rgba(184, 144, 64, 0.25) !important;
+}
+
+html[data-theme] .node-distance {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-node-stroke);
+  box-shadow: var(--shadow-raised);
+}
+
+/* Edge Overrides */
+html[data-theme] .edge-weight-label {
+  background: var(--color-surface);
+  color: var(--color-text);
+  border-color: var(--color-node-stroke);
+  box-shadow: var(--shadow-raised);
+  backdrop-filter: none !important;
+}
+
+html[data-theme] .react-flow__edge-path.edge-default {
+  stroke: var(--color-edge-default) !important;
+  filter: none !important;
+}
+
+html[data-theme] .react-flow__edge-path.edge-visited { stroke: var(--color-edge-visited) !important; stroke-width: 3 !important; }
+html[data-theme] .react-flow__edge-path.edge-current,
+html[data-theme] .react-flow__edge-path.edge-active { stroke: var(--color-edge-current) !important; stroke-width: 3 !important; }
+html[data-theme] .react-flow__edge-path.edge-in-path { stroke: var(--color-edge-path) !important; stroke-width: 4 !important; }
+
+/* Grid Cell Overrides */
+html[data-theme] .grid-cell {
+  backdrop-filter: none !important;
+  -webkit-backdrop-filter: none !important;
+  box-shadow: var(--shadow-raised) !important;
+  animation: none !important;
+}
+html[data-theme] .grid-cell::before,
+html[data-theme] .grid-cell::after {
+  display: none !important;
+}
+html[data-theme] .grid-cell.cell-default { background: var(--color-surface) !important; border-color: var(--color-node-stroke) !important; color: var(--color-text) !important; }
+html[data-theme] .grid-cell.cell-visited { background: var(--color-surface-hover) !important; border-color: var(--color-edge-visited) !important; color: var(--color-text) !important; }
+html[data-theme] .grid-cell.cell-current { background: var(--color-surface) !important; border-color: var(--color-accent) !important; color: var(--color-text) !important; }
+html[data-theme] .grid-cell.cell-queued  { background: var(--color-surface) !important; border-color: #d86840 !important; color: var(--color-text) !important; }
+html[data-theme] .grid-cell.cell-obstacle { background: var(--color-text-muted) !important; border-color: var(--color-text) !important; color: var(--color-surface) !important; }
+html[data-theme] .grid-cell.cell-source  { background: var(--color-surface) !important; border-color: var(--color-accent) !important; border-width: 3px !important; color: var(--color-text) !important; }
+html[data-theme] .grid-cell.cell-target  { background: var(--color-surface) !important; border-color: #d96850 !important; border-width: 3px !important; color: var(--color-text) !important; }
