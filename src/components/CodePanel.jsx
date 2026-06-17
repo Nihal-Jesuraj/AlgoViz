@@ -27,7 +27,7 @@ function CodePanel({ code = '', language = 'java', currentLine = -1, title = 'Co
               {title}
             </span>
           </div>
-          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-[var(--color-accent)] text-white text-[10px] font-mono font-semibold uppercase tracking-wider flex-shrink-0 shadow-sm">
+          <span className="inline-flex items-center px-2 py-0.5 rounded-md bg-[var(--color-accent)] text-[10px] font-mono font-semibold uppercase tracking-wider flex-shrink-0 shadow-sm">
             {language}
           </span>
         </div>

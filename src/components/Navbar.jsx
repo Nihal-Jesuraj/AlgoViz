@@ -6,6 +6,8 @@ import { Link } from 'react-router-dom';
 
 function Navbar({ 
   problemTitle = 'DSA Algorithm Visualizer', 
+  showTitle = false,
+  sidebarWidth = 0,
   algorithmName = '', 
   currentTheme = 'apple',
   onChangeTheme, 
@@ -25,16 +27,17 @@ function Navbar({
   return (
     <motion.nav
       id="navbar"
-      className="glass-nav fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between px-5"
+      className="glass-nav fixed top-0 left-0 right-0 z-50 h-14 flex items-center justify-between pr-5"
       data-glass-panel="navbar"
       initial={{ opacity: 0, y: -10 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, ease: 'easeOut' }}
+      style={{ paddingLeft: `${sidebarWidth + 20}px` }}
     >
       {/* Left — Logo & Progress Badge */}
       <div className="flex items-center gap-4">
         <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
-          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-accent)] text-white shadow-sm">
+          <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-accent)] shadow-sm">
             <Network size={18} strokeWidth={2.5} />
           </div>
           <span className="font-heading font-bold text-[17px] tracking-tight text-[var(--color-text)]">
@@ -63,17 +66,14 @@ function Navbar({
         )}
       </div>
 
-      {/* Center — Problem title + Algorithm name */}
-      <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
-        <h1 className="font-heading font-medium text-sm text-[var(--color-text-muted)] truncate max-w-[320px]">
-          {problemTitle}
-        </h1>
-        {algorithmName && (
-          <span className="text-xs font-mono px-2 py-0.5 rounded-md bg-[var(--color-accent)] text-white font-medium shadow-sm">
-            {algorithmName}
-          </span>
-        )}
-      </div>
+      {/* Center — Problem title (only on visualizer/sandbox pages) */}
+      {showTitle && (
+        <div className="absolute left-1/2 -translate-x-1/2 flex items-center gap-2">
+          <h1 className="font-heading font-medium text-sm text-[var(--color-text-muted)] truncate max-w-[320px]">
+            {problemTitle}
+          </h1>
+        </div>
+      )}
 
       {/* Right — Controls & GitHub */}
       <div className="flex items-center gap-2">

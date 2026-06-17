@@ -9,7 +9,7 @@ export default function AISolutionPanel({ customProblemData, themeId = 'dark' })
 
   if (!customProblemData) {
     return (
-      <div className="w-full h-full flex items-center justify-center bg-black/20 border-r border-white/5">
+      <div className="w-full h-full flex items-center justify-center bg-[var(--glass-fill)] border-r border-[var(--glass-border)]">
         <div className="text-center p-6 text-[var(--color-text-subtle)] font-mono text-sm">
           <BrainCircuit size={32} className="mx-auto mb-3 opacity-50" />
           <p>Import a custom problem and use AI Solve to generate an explanation and solution.</p>

@@ -257,20 +257,20 @@ export default function DryRunView({ onLoadGraph, currentGraphData }) {
     <div className="absolute inset-0 flex flex-col items-center justify-center bg-transparent pointer-events-auto p-6 z-10 overflow-y-auto">
       
       <div className="text-center mb-8">
-        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--glass-fill)] border border-[var(--color-accent)] mb-4 shadow-sm">
-          <Network size={32} className="text-[var(--color-accent)]" />
+        <div className="inline-flex items-center justify-center w-16 h-16 rounded-2xl bg-[var(--color-accent)] mb-4 shadow-sm">
+          <Network size={32} strokeWidth={2.5} />
         </div>
-        <h1 className="text-3xl font-heading font-bold bg-gradient-to-r from-white to-white/60 bg-clip-text text-transparent mb-2">Dry Run & Builder</h1>
+        <h1 className="text-3xl font-heading font-bold mb-2" style={{ color: 'var(--color-text)' }}>Dry Run & Builder</h1>
         <p className="text-[var(--color-text-muted)] max-w-md mx-auto">Acquire input from external sources or build your own custom graph structure.</p>
       </div>
 
       <motion.div 
-        className="glass-panel w-full max-w-3xl bg-[var(--color-surface)]/80 border border-white/10 rounded-2xl shadow-2xl flex flex-col min-h-[400px]"
+        className="glass-panel w-full max-w-3xl bg-[var(--color-surface)]/80 border border-[var(--glass-border)] rounded-2xl shadow-2xl flex flex-col min-h-[400px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
         {/* Tabs */}
-        <div className="flex border-b border-white/5 px-4 pt-2 gap-2 overflow-x-auto">
+        <div className="flex border-b border-[var(--glass-border)] px-4 pt-2 gap-2 overflow-x-auto">
           {[
             { id: 'fetch', label: 'LeetCode / GFG URL', icon: <LinkIcon size={14} /> },
             { id: 'array', label: 'Code Analysis (Arrays)', icon: <Code size={14} /> },
@@ -284,7 +284,7 @@ export default function DryRunView({ onLoadGraph, currentGraphData }) {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-5 py-3 font-heading font-semibold text-xs tracking-wider transition-colors border-b-2 whitespace-nowrap ${
                 activeTab === tab.id 
-                  ? 'border-[var(--color-accent)] text-[var(--color-accent)] bg-[var(--glass-fill)]' 
+                  ? 'border-[var(--color-accent)] text-[var(--color-text)] bg-[var(--glass-fill)]' 
                   : 'border-transparent text-[var(--color-text-muted)] hover:text-[var(--color-text)] hover:bg-[var(--glass-fill)]'
               }`}
             >
@@ -341,7 +341,7 @@ export default function DryRunView({ onLoadGraph, currentGraphData }) {
                   <button 
                     key={key} 
                     onClick={() => setRawCodeInput(d.code)} 
-                    className="px-3 py-1.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-fill)] hover:bg-[var(--color-accent)] hover:text-white transition-colors text-xs font-medium text-[var(--color-text-muted)]"
+                    className="px-3 py-1.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-fill)] hover:bg-[var(--color-accent)] transition-colors text-xs font-medium text-[var(--color-text-muted)] hover:text-[var(--color-text)]"
                   >
                     {d.label}
                   </button>

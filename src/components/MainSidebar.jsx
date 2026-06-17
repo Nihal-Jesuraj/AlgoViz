@@ -14,8 +14,6 @@ import {
   X, 
   Hash, 
   ArrowRightLeft,
-  ChevronLeft,
-  ChevronRight,
   BrainCircuit,
   Code
 } from 'lucide-react';
@@ -56,34 +54,31 @@ export default function MainSidebar({ isCollapsed, onToggleCollapse }) {
 
   return (
     <motion.aside
-      className="glass-panel relative flex flex-col h-full border-r border-white/10 z-[100] bg-black/80 backdrop-blur-xl"
+      className="glass-panel relative flex flex-col h-full border-r border-[var(--glass-border)] z-[100] backdrop-blur-xl"
       animate={{ width: isCollapsed ? 60 : 280 }}
       transition={{ duration: 0.3, ease: [0.16, 1, 0.3, 1] }}
     >
-      {/* Header */}
-      <div className="flex items-center gap-3 p-4 border-b border-white/5 h-[56px] shrink-0">
-        <BrainCircuit size={24} className="text-[var(--color-accent)] shrink-0" />
+      {/* Header - click to toggle */}
+      <div
+        onClick={onToggleCollapse}
+        className="flex items-center gap-3 p-4 border-b border-[var(--glass-border)] h-[56px] shrink-0 cursor-pointer select-none"
+      >
+        <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-accent)] shadow-sm shrink-0">
+          <BrainCircuit size={isCollapsed ? 18 : 20} strokeWidth={2.5} />
+        </div>
         {!isCollapsed && (
-          <span className="font-bold text-white tracking-wide whitespace-nowrap overflow-hidden">
-            Data Structure<br/>Visualizer
+          <span className="font-heading font-bold text-[var(--color-text)] tracking-tight whitespace-nowrap overflow-hidden">
+            AlgoViz
           </span>
         )}
       </div>
-
-      {/* Collapse Toggle Button */}
-      <button
-        onClick={onToggleCollapse}
-        className="absolute -right-3 top-[16px] w-6 h-6 rounded-full bg-[#111] border border-white/10 text-white flex items-center justify-center hover:bg-[#222] hover:text-[var(--color-accent)] hover:scale-110 transition-all z-10"
-      >
-        {isCollapsed ? <ChevronRight size={14} /> : <ChevronLeft size={14} />}
-      </button>
 
       {/* Navigation Links */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden p-3 custom-scrollbar">
         {navItems.map((section, idx) => (
           <div key={idx} className="mb-6">
             {!isCollapsed && (
-              <h3 className="text-[11px] font-bold text-white/40 uppercase tracking-[0.15em] mb-2 px-3">
+              <h3 className="text-[11px] font-bold text-[var(--color-text-muted)] uppercase tracking-[0.15em] mb-2 px-3">
                 {section.title}
               </h3>
             )}
@@ -98,8 +93,8 @@ export default function MainSidebar({ isCollapsed, onToggleCollapse }) {
                     className={`
                       flex items-center gap-3 px-3 py-2 rounded-lg transition-all duration-200 w-full text-left
                       ${isActive 
-                        ? 'bg-[rgba(var(--color-highlight-rgb),0.1)] text-[var(--color-accent)]' 
-                        : 'text-white/60 hover:bg-white/5 hover:text-white'
+                        ? 'bg-[rgba(var(--color-highlight-rgb),0.1)] text-[var(--color-text)]' 
+                        : 'text-[var(--color-text-muted)] hover:bg-[var(--glass-fill-hover)] hover:text-[var(--color-text)]'
                       }
                     `}
                   >

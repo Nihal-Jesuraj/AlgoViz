@@ -84,13 +84,13 @@ function Sidebar({
   return (
     <motion.aside
       id="sidebar"
-      className="glass-panel sidebar-panel flex flex-col h-full overflow-hidden border-r border-white/20"
+      className="glass-panel sidebar-panel flex flex-col h-full overflow-hidden border-r border-[var(--glass-border)]"
       data-glass-panel="sidebar"
       animate={{ width: isCollapsed ? 60 : 280 }}
       transition={{ duration: 0.3, ease: [0.4, 0, 0.2, 1] }}
     >
       {/* Header: Toggle + Search */}
-      <div className="flex flex-col gap-2 p-3 border-b border-black/5">
+      <div className="flex flex-col gap-2 p-3 border-b border-[var(--glass-border)]">
         <div className="flex items-center gap-2">
           <button
             id="sidebar-toggle"
@@ -128,7 +128,7 @@ function Sidebar({
         <AnimatePresence>
           {!isCollapsed && (
             <motion.div
-              className="flex items-center gap-1 bg-black/10 p-1 rounded-lg mt-1"
+              className="flex items-center gap-1 bg-[var(--glass-fill)] p-1 rounded-lg mt-1"
               initial={{ opacity: 0, height: 0 }}
               animate={{ opacity: 1, height: 'auto' }}
               exit={{ opacity: 0, height: 0 }}
@@ -180,18 +180,18 @@ function Sidebar({
         <AnimatePresence>
           {!isCollapsed && customRuns.length > 0 && (
             <div className="mb-2">
-              <button
-                className="section-header w-full flex flex-col justify-center cursor-pointer hover:bg-white/5 transition-colors py-2 px-3 border-b border-white/5"
-                onClick={() => toggleSection('customRuns')}
-              >
-                <div className="flex items-center justify-between w-full">
-                  <span className="truncate text-xs font-semibold text-[var(--color-accent)]">Custom Runs</span>
-                  <div className="flex items-center gap-2 text-[10px] text-[var(--color-accent)]">
-                    <span>{customRuns.length}</span>
-                    {isSectionExpanded('customRuns') ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                <button
+                  className="section-header w-full flex flex-col justify-center cursor-pointer hover:bg-[var(--glass-fill-hover)] transition-colors py-2 px-3 border-b border-[var(--glass-border)]"
+                  onClick={() => toggleSection('customRuns')}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <span className="truncate text-xs font-semibold text-[var(--color-accent)]">Custom Runs</span>
+                    <div className="flex items-center gap-2 text-[10px] text-[var(--color-accent)]">
+                      <span>{customRuns.length}</span>
+                      {isSectionExpanded('customRuns') ? <ChevronUp size={12} /> : <ChevronDown size={12} />}
+                    </div>
                   </div>
-                </div>
-              </button>
+                </button>
               
               <AnimatePresence>
                 {isSectionExpanded('customRuns') && (
@@ -206,8 +206,8 @@ function Sidebar({
                         key={run.id}
                         className={`group relative flex items-center gap-3 px-3 py-2 cursor-pointer transition-colors border-l-2
                           ${selectedProblemId === run.id 
-                            ? 'bg-white/5 border-[var(--color-accent)]' 
-                            : 'border-transparent hover:bg-white/[0.02]'}
+                            ? 'bg-[var(--glass-fill-hover)] border-[var(--color-accent)]' 
+                            : 'border-transparent hover:bg-[var(--glass-fill)]'}
                         `}
                         onClick={() => onSelectProblem({ id: run.id, title: run.title })}
                       >
@@ -237,7 +237,7 @@ function Sidebar({
                 <div key={section} className="mb-2">
                   {/* Section header */}
                   <button
-                    className="section-header w-full flex flex-col justify-center cursor-pointer hover:bg-white/5 transition-colors py-2 px-3 border-b border-white/5"
+                    className="section-header w-full flex flex-col justify-center cursor-pointer hover:bg-[var(--glass-fill-hover)] transition-colors py-2 px-3 border-b border-[var(--glass-border)]"
                     onClick={() => toggleSection(section)}
                     id={`section-${section.replace(/\s+/g, '-').toLowerCase()}`}
                   >
@@ -249,7 +249,7 @@ function Sidebar({
                       </div>
                     </div>
                     {/* Section Progress Bar */}
-                    <div className="w-full h-1 bg-black/20 rounded-full mt-1.5 overflow-hidden">
+                    <div className="w-full h-1 bg-[var(--glass-fill)] rounded-full mt-1.5 overflow-hidden">
                       <div 
                         className="h-full bg-accent-teal transition-all duration-500 ease-out" 
                         style={{ width: `${progress.percentage}%` }}
@@ -273,8 +273,8 @@ function Sidebar({
                             transition={{ duration: 0.15, delay: Math.min(idx * 0.02, 0.2) }}
                             className={`w-full flex items-center group transition-colors duration-200 ${
                               isSelected
-                                ? 'bg-[var(--glass-fill)] border-l-[3px] border-l-[var(--color-accent)]'
-                                : 'border-l-[3px] border-l-transparent hover:bg-white/5'
+                                ? 'bg-[var(--glass-fill-hover)] border-l-[3px] border-l-[var(--color-accent)]'
+                                : 'border-l-[3px] border-l-transparent hover:bg-[var(--glass-fill)]'
                             } ${isDone ? 'opacity-80' : ''}`}
                           >
                             <button
@@ -283,7 +283,7 @@ function Sidebar({
                               onClick={() => onSelectProblem(problem)}
                             >
                               <span className={`flex-shrink-0 w-8 h-6 flex items-center justify-center rounded-md font-mono text-[10px] font-semibold transition-colors ${
-                                isDone ? 'bg-accent-teal/20 text-accent-teal' : 'bg-black/[0.04] text-[var(--color-text-muted)]'
+                                isDone ? 'bg-accent-teal/20 text-accent-teal' : 'bg-[var(--glass-fill)] text-[var(--color-text-muted)]'
                               }`}>
                                 {problem.id}
                               </span>
@@ -334,10 +334,10 @@ function Sidebar({
                   id={`problem-collapsed-${problem.id}`}
                   className={`w-9 h-8 flex items-center justify-center rounded-lg text-[10px] font-mono font-semibold transition-all duration-200 ${
                     isActive
-                      ? 'bg-[var(--color-accent)] text-white'
+                      ? 'bg-[var(--color-accent)]'
                       : isDone 
                         ? 'bg-accent-teal/10 text-accent-teal hover:bg-accent-teal/20'
-                        : 'hover:bg-black/5 text-[var(--color-text-muted)]'
+                        : 'hover:bg-[var(--glass-fill)] text-[var(--color-text-muted)]'
                   }`}
                   onClick={() => onSelectProblem(problem)}
                   title={problem.title}

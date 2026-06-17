@@ -114,21 +114,21 @@ function StatePanel({ algorithmState = {}, stepDescription = '', isExpanded = tr
             transition={{ duration: 0.25, ease: [0.4, 0, 0.2, 1] }}
           >
             {/* Tabs */}
-            <div className="flex border-b border-white/10 bg-black/20">
+            <div className="flex border-b border-[var(--glass-border)] bg-[var(--glass-fill)]">
               <button 
-                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'data' ? 'text-[var(--color-accent)] border-b-2 border-[var(--color-accent)] bg-[var(--glass-fill)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
+                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'data' ? 'text-[var(--color-text)] border-b-2 border-[var(--color-accent)] bg-[var(--color-surface)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setActiveTab('data')}
               >
                 Structures
               </button>
               <button 
-                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'distances' ? 'text-accent-cyan border-b-2 border-accent-cyan bg-[var(--glass-fill)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
+                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'distances' ? 'text-[var(--color-text)] border-b-2 border-accent-cyan bg-[var(--color-surface)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setActiveTab('distances')}
               >
                 Distances
               </button>
               <button 
-                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'parent' ? 'text-accent-teal border-b-2 border-accent-teal bg-[var(--glass-fill)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
+                className={`flex-1 py-2 text-[10px] font-heading font-semibold uppercase tracking-wider transition-colors ${activeTab === 'parent' ? 'text-[var(--color-text)] border-b-2 border-accent-teal bg-[var(--color-surface)]' : 'text-[var(--color-text-muted)] hover:text-[var(--color-text)]'}`}
                 onClick={() => setActiveTab('parent')}
               >
                 Parents

@@ -75,7 +75,7 @@ function AppLayout() {
   // Sync theme to document element
   useEffect(() => {
     localStorage.setItem('algo_theme', bgThemeId);
-    if (['light', 'dark', 'blueprint'].includes(bgThemeId)) {
+    if (['light', 'dark', 'blueprint', 'brutalist'].includes(bgThemeId)) {
       document.documentElement.setAttribute('data-theme', bgThemeId);
     } else {
       document.documentElement.removeAttribute('data-theme');
@@ -95,10 +95,6 @@ function AppLayout() {
     setBgImage(null); // Clear image when switching themes
     localStorage.setItem('dsa-bg-theme', newThemeId);
   }, []);
-
-  useEffect(() => {
-    document.documentElement.setAttribute('data-theme', bgThemeId);
-  }, [bgThemeId]);
 
   const handleImageUpload = useCallback((file) => {
     const reader = new FileReader();
@@ -498,7 +494,9 @@ function AppLayout() {
 
         {/* Global Navbar */}
         <Navbar
-          problemTitle={selectedProblem?.title}
+          problemTitle={isSandbox ? 'Sandbox' : ({ avl: 'AVL Tree', bst: 'Binary Search Tree', 'linked-list': 'Linked List', array: 'Array' })[routeProblemId] || selectedProblem?.title}
+          showTitle={location.pathname.startsWith('/visualizer') || location.pathname.startsWith('/sandbox')}
+          sidebarWidth={mainSidebarCollapsed ? 60 : 280}
           algorithmName={algorithmDef?.name}
           currentTheme={bgThemeId}
           onChangeTheme={handleChangeTheme}
