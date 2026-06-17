@@ -1,9 +1,10 @@
 /* ============================================
    DSA Algorithm Visualizer — Design System
    Light Mode Glassmorphism (Tableau AI inspired)
+   CACHE BUST: 2026-06-17
    ============================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@300;400;500;600;700&family=Bebas+Neue&display=swap');
 
 @tailwind base;
 @tailwind components;
@@ -341,17 +342,17 @@ body {
 @keyframes glass-glow-pulse {
   0%, 100% {
     box-shadow:
-      0 0 20px rgba(124, 58, 237, 0.25),
-      0 0 8px rgba(124, 58, 237, 0.12),
+      0 0 20px rgba(var(--color-highlight-rgb), 0.25),
+      0 0 8px rgba(var(--color-highlight-rgb), 0.12),
       inset 0 1px 4px rgba(255, 255, 255, 0.4),
-      inset 0 -2px 6px rgba(124, 58, 237, 0.10);
+      inset 0 -2px 6px rgba(var(--color-highlight-rgb), 0.10);
   }
   50% {
     box-shadow:
-      0 0 36px rgba(124, 58, 237, 0.40),
-      0 0 16px rgba(124, 58, 237, 0.20),
+      0 0 36px rgba(var(--color-highlight-rgb), 0.40),
+      0 0 16px rgba(var(--color-highlight-rgb), 0.20),
       inset 0 1px 4px rgba(255, 255, 255, 0.5),
-      inset 0 -2px 6px rgba(124, 58, 237, 0.15);
+      inset 0 -2px 6px rgba(var(--color-highlight-rgb), 0.15);
   }
 }
 
@@ -737,25 +738,25 @@ body {
 
 /* === GRAPHISUAL: LIGHT === */
 html[data-theme="light"] {
-  --color-paper: #e5e0d8;
-  --color-surface: #f1eee9;
-  --color-surface-hover: #f8f6f2;
-  --color-text: #2a2520;
-  --color-text-muted: #5a544c;
-  --color-accent: #2B6B2B;
-  --shadow-raised: 0px 0px 0px 1px rgba(50, 45, 40, 0.2);
-  --shadow-premium: 0px 0px 0px 1px rgba(50, 45, 40, 0.2);
-  --color-node-stroke: #8a847a;
-  --color-edge-default: #8a847a;
-  --color-edge-visited: #2B6B2B;
-  --color-edge-path: #b89040;
-  --color-edge-current: #2B6B2B;
+  --color-paper: #ffffff;
+  --color-surface: #ffffff;
+  --color-surface-hover: #f1f1f1;
+  --color-text: #000000;
+  --color-text-muted: #555555;
+  --color-accent: #D4FF00;
+  --shadow-raised: 4px 4px 0px 0px rgba(0, 0, 0, 1);
+  --shadow-premium: 8px 8px 0px 0px rgba(0, 0, 0, 1);
+  --color-node-stroke: #000000;
+  --color-edge-default: rgba(0, 0, 0, 0.2);
+  --color-edge-visited: #000000;
+  --color-edge-path: #D4FF00;
+  --color-edge-current: #000000;
 
-  --color-purple: #2B6B2B;
-  --color-purple-light: #3D8C3D;
-  --color-purple-lighter: #a0d4a0;
-  --color-purple-glow: rgba(43, 107, 43, 0.15);
-  --color-highlight-rgb: 43, 107, 43;
+  --color-purple: #D4FF00;
+  --color-purple-light: #000000;
+  --color-purple-lighter: #f1f1f1;
+  --color-purple-glow: rgba(212, 255, 0, 0.25);
+  --color-highlight-rgb: 212, 255, 0;
   --color-bg-dots: rgba(0, 0, 0, 0.1);
 }
 
@@ -807,6 +808,43 @@ html[data-theme="blueprint"] {
   --color-bg-dots: rgba(255, 255, 255, 0.15);
 }
 
+/* === GRAPHISUAL: BRUTALIST === */
+html[data-theme="brutalist"] {
+  --color-paper: #000000;
+  --color-surface: #0a0a0a;
+  --color-surface-hover: #111111;
+  --color-text: #f4f4f5;
+  --color-text-muted: #a1a1aa;
+  --color-accent: #a3e635;
+  --color-node-stroke: rgba(163, 230, 53, 0.8);
+  --shadow-raised: 0 0 0 1px rgba(163, 230, 53, 0.4);
+  --shadow-premium: 0 0 15px rgba(163, 230, 53, 0.3);
+  
+  --color-edge-default: rgba(163, 230, 53, 0.2);
+  --color-edge-path: #a3e635;
+  --color-edge-visited: #4d7c0f;
+  --color-edge-current: #bef264;
+
+  --color-purple: #a3e635;
+  --color-purple-light: #bef264;
+  --color-purple-lighter: #166534;
+  --color-purple-glow: rgba(163, 230, 53, 0.15);
+  --color-highlight-rgb: 163, 230, 53;
+  --color-bg-dots: rgba(163, 230, 53, 0.3);
+  --color-node-bg: rgba(163, 230, 53, 0.05); /* Decreased opacity for clearer glass */
+}
+
+/* Neon Orange Overrides for Brutalist Theme */
+html[data-theme="brutalist"] .graph-node.node-queued {
+  border-color: #ff5f1f !important;
+  background: rgba(255, 95, 31, 0.1) !important;
+  box-shadow: 0 0 15px rgba(255, 95, 31, 0.4) !important;
+}
+
+html[data-theme="brutalist"] .grid-cell.cell-queued {
+  border-color: #ff5f1f !important;
+}
+
 /* Base Body Application */
 html[data-theme] body {
   background-color: var(--color-paper);
@@ -838,9 +876,14 @@ html[data-theme] .glass-button:hover {
 }
 
 html[data-theme] .glass-button.primary {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
+  background: var(--color-accent) !important;
+  border-color: var(--color-accent) !important;
   color: #fff;
+}
+
+html[data-theme="brutalist"] .glass-button.primary,
+html[data-theme="light"] .glass-button.primary {
+  color: #000 !important;
 }
 
 html[data-theme] .glass-input {
@@ -850,17 +893,17 @@ html[data-theme] .glass-input {
 
 /* Node Overrides */
 html[data-theme] .graph-node {
-  background: var(--color-surface) !important;
-  border: 2px solid var(--color-node-stroke) !important;
+  background: var(--color-node-bg, var(--color-surface)) !important;
+  border: 1.5px solid var(--color-node-stroke) !important;
   color: var(--color-text) !important;
   box-shadow: var(--shadow-premium) !important;
-  backdrop-filter: none !important;
-  -webkit-backdrop-filter: none !important;
+  backdrop-filter: blur(12px) saturate(180%) !important;
+  -webkit-backdrop-filter: blur(12px) saturate(180%) !important;
   transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1) !important;
 }
 
 html[data-theme] .graph-node::before {
-  display: none !important;
+  display: block !important;
 }
 
 /* Node States */

@@ -1,12 +1,12 @@
 import React from 'react';
 
 const COLORS = {
-  active:     { bg: "#dbeafe", border: "#3b82f6", text: "#1e40af" },
-  secondary:  { bg: "#fef3c7", border: "#f59e0b", text: "#92400e" },
-  done:       { bg: "#dcfce7", border: "#22c55e", text: "#4c1d95" },
-  eliminated: { bg: "#f1f5f9", border: "#cbd5e1", text: "#94a3b8" },
-  swap:       { bg: "#ede9fe", border: "#8b5cf6", text: "#4c1d95" },
-  idle:       { bg: "#ffffff", border: "#e2e8f0", text: "#334155" },
+  active:     { bg: "rgba(var(--color-highlight-rgb), 0.2)", border: "var(--color-accent)", text: "var(--color-text)" },
+  secondary:  { bg: "rgba(245, 158, 11, 0.2)", border: "var(--color-amber, #F59E0B)", text: "var(--color-text)" },
+  done:       { bg: "rgba(16, 185, 129, 0.2)", border: "var(--color-emerald, #10B981)", text: "var(--color-text)" },
+  eliminated: { bg: "rgba(255, 255, 255, 0.05)", border: "rgba(255, 255, 255, 0.2)", text: "var(--color-text-muted)" },
+  swap:       { bg: "rgba(139, 92, 246, 0.2)", border: "var(--color-purple, #8b5cf6)", text: "var(--color-text)" },
+  idle:       { bg: "var(--color-surface, #ffffff)", border: "var(--color-node-stroke, #e2e8f0)", text: "var(--color-text, #334155)" },
 };
 
 function cellState(idx, step) {
@@ -46,8 +46,8 @@ export default function ArrayCanvas({ step }) {
   }
 
   return (
-    <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--glass-fill)] backdrop-blur-sm m-4 rounded-2xl border border-[var(--glass-border)]">
-      <div className="flex flex-wrap gap-3 items-end min-h-[120px] p-4 bg-white/5 rounded-xl shadow-inner border border-white/10">
+    <div className="flex-1 flex flex-col items-center justify-center p-8 bg-[var(--color-surface)]/50 backdrop-blur-sm m-4 rounded-2xl border border-[var(--color-node-stroke)]">
+      <div className="flex flex-wrap gap-3 items-end min-h-[120px] p-4 bg-[var(--color-surface-hover)] rounded-xl shadow-inner border border-[var(--color-node-stroke)]">
         {step.arr.map((val, idx) => {
           const s = COLORS[cellState(idx, step)];
           const ptr = step.pointers?.[idx] || step.pointers?.[idx.toString()];
@@ -82,7 +82,7 @@ export default function ArrayCanvas({ step }) {
 
       {/* Legend & What's happening */}
       <div className="w-full max-w-3xl mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="p-4 bg-black/10 rounded-xl border border-white/5">
+        <div className="p-4 bg-[var(--color-surface-hover)] rounded-xl border border-[var(--color-node-stroke)]">
           <div className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Color Legend</div>
           <div className="flex flex-wrap gap-4">
             {Object.entries(COLORS).map(([label, style]) => {

@@ -1,6 +1,8 @@
 import React, { memo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { Network, GitGraph, Palette, ImagePlus, Bot } from 'lucide-react';
+import { Network, GitGraph, Palette } from 'lucide-react';
+
+import { Link } from 'react-router-dom';
 
 function Navbar({ 
   problemTitle = 'DSA Algorithm Visualizer', 
@@ -31,14 +33,14 @@ function Navbar({
     >
       {/* Left — Logo & Progress Badge */}
       <div className="flex items-center gap-4">
-        <div className="flex items-center gap-2.5">
+        <Link to="/" className="flex items-center gap-2.5 hover:opacity-80 transition-opacity">
           <div className="flex items-center justify-center w-8 h-8 rounded-lg bg-[var(--color-accent)] text-white shadow-sm">
             <Network size={18} strokeWidth={2.5} />
           </div>
           <span className="font-heading font-bold text-[17px] tracking-tight text-[var(--color-text)]">
             AlgoViz
           </span>
-        </div>
+        </Link>
         
         {/* Overall Progress Badge */}
         {overallProgress.total > 0 && (
@@ -75,41 +77,7 @@ function Navbar({
 
       {/* Right — Controls & GitHub */}
       <div className="flex items-center gap-2">
-        {onImageUpload && (
-          <>
-            <input
-              type="file"
-              accept="image/*"
-              className="hidden"
-              ref={fileInputRef}
-              onChange={handleImageChange}
-            />
-            <button
-              onClick={() => fileInputRef.current?.click()}
-              className="glass-button !p-2 !rounded-lg hover:!shadow-purple-glow"
-              aria-label="Upload Background Image"
-              title="Upload Background Image"
-            >
-              <ImagePlus size={18} />
-            </button>
-          </>
-        )}
-        {import.meta.env.DEV && (
-          <button
-            onClick={() => {
-              if (window.runBatchVisionExtraction) {
-                window.runBatchVisionExtraction();
-              } else {
-                console.warn('Batch extractor not loaded on window.');
-              }
-            }}
-            className="glass-button !p-2 !rounded-lg hover:!shadow-purple-glow text-[var(--color-accent)]"
-            aria-label="Run Batch Vision Extractor"
-            title="Run Batch Vision Extractor (Dev Only)"
-          >
-            <Bot size={18} />
-          </button>
-        )}
+
         {onChangeTheme && (
           <div className="relative">
             <select
@@ -117,11 +85,12 @@ function Navbar({
               onChange={(e) => onChangeTheme(e.target.value)}
               className="glass-button !py-1.5 !pl-3 !pr-8 appearance-none outline-none font-medium text-xs cursor-pointer"
             >
-              <option value="glass">Glass</option>
-              <option value="cyberpunk">Cyberpunk</option>
-              <option value="light">Light</option>
-              <option value="dark">Dark</option>
-              <option value="blueprint">Blueprint</option>
+              <option value="glass">Theme: Glass</option>
+              <option value="cyberpunk">Theme: Cyberpunk</option>
+              <option value="light">Theme: Light</option>
+              <option value="dark">Theme: Dark</option>
+              <option value="blueprint">Theme: Blueprint</option>
+              <option value="brutalist">Theme: Brutalist</option>
             </select>
             <Palette size={14} className="absolute right-3 top-1/2 -translate-y-1/2 pointer-events-none text-[var(--color-text-muted)]" />
           </div>

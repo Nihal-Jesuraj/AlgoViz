@@ -31,16 +31,30 @@ import ArrayCanvas from './components/ArrayCanvas';
 import { LayoutPersistenceService } from './services/LayoutPersistenceService';
 import LayoutDebugPanel from './components/LayoutDebugPanel';
 import { SourceDiagramLayoutService } from './services/SourceDiagramLayoutService';
+import { Routes, Route, useLocation, useNavigate, useParams, Navigate } from 'react-router-dom';
+import HomeView from './components/HomeView';
+import AnalysisMetricsPanel from './components/AnalysisMetricsPanel';
+import MainSidebar from './components/MainSidebar';
+import DashboardView from './components/DashboardView';
+import DataStructureView from './components/DataStructureView';
 
-function App() {
+function AppLayout() {
+  const location = useLocation();
+  const navigate = useNavigate();
+  
+  // Determine if we are in sandbox mode via URL
+  const isSandbox = location.pathname.startsWith('/sandbox');
+  
+  // Extract algorithm id from URL if on visualizer path
+  const match = location.pathname.match(/\/visualizer\/([^/]+)/);
+  const routeProblemId = match ? match[1] : '';
   // ---- State ----
-  const [selectedProblemId, setSelectedProblemId] = useState(problems[0]?.id || '');
+  const [selectedProblemId, setSelectedProblemId] = useState(routeProblemId || problems[0]?.id || '');
   const [sidebarCollapsed, setSidebarCollapsed] = useState(false);
   const [statePanelExpanded, setStatePanelExpanded] = useState(true);
   const [codePanelWidth, setCodePanelWidth] = useState(380);
   const [bgThemeId, setBgThemeId] = useState(() => localStorage.getItem('algo_theme') || 'glass');
   const [bgImage, setBgImage] = useState(null);
-  const [viewMode, setViewMode] = useState('graph'); // 'graph' | 'import'
   const [layoutDebugInfo, setLayoutDebugInfo] = useState(null);
   
   // AI Solver & Custom Runs
@@ -48,6 +62,15 @@ function App() {
   const [customProblemData, setCustomProblemData] = useState(null);
   const [customProblemHtml, setCustomProblemHtml] = useState('');
   const [isAISolving, setIsAISolving] = useState(false);
+  const [mainSidebarCollapsed, setMainSidebarCollapsed] = useState(false);
+
+  // Sync route param to state
+  useEffect(() => {
+    if (routeProblemId && routeProblemId !== selectedProblemId && !routeProblemId.startsWith('custom-')) {
+      setSelectedProblemId(routeProblemId);
+      setCustomProblemData(null);
+    }
+  }, [routeProblemId, selectedProblemId]);
 
   // Sync theme to document element
   useEffect(() => {
@@ -70,7 +93,12 @@ function App() {
   const handleChangeTheme = useCallback((newThemeId) => {
     setBgThemeId(newThemeId);
     setBgImage(null); // Clear image when switching themes
+    localStorage.setItem('dsa-bg-theme', newThemeId);
   }, []);
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', bgThemeId);
+  }, [bgThemeId]);
 
   const handleImageUpload = useCallback((file) => {
     const reader = new FileReader();
@@ -342,30 +370,24 @@ function App() {
     (problemOrId) => {
       const id = typeof problemOrId === 'object' ? problemOrId.id : problemOrId;
       resetAlgorithm();
-      setSelectedProblemId(id);
       
       if (id === 'import') {
-        setViewMode('import');
+        navigate('/sandbox');
       } else if (id.startsWith('custom-')) {
-        setCustomProblemData(prev => {
-          // Because customRuns might not be in deps, we can just find it
-          // Or we can rely on customRuns being in deps below
-          return null; // temporary
-        });
-        // We'll set customProblemData immediately from customRuns
+        setSelectedProblemId(id);
         const run = customRuns.find(r => r.id === id);
         if (run) {
           setCustomProblemData(run);
-          setViewMode('graph');
+          navigate('/visualizer/' + id);
         }
       } else {
         setCustomProblemData(null);
         setCustomProblemHtml('');
-        setViewMode('graph');
         if (isEditing) toggleEditing(); // Exit edit mode
+        navigate('/visualizer/' + id);
       }
     },
-    [resetAlgorithm, isEditing, toggleEditing, customRuns]
+    [resetAlgorithm, isEditing, toggleEditing, customRuns, navigate]
   );
 
   const handleAISolve = useCallback(async () => {
@@ -454,13 +476,27 @@ function App() {
   }, [setNodes]);
 
 
+  const isHome = location.pathname === '/';
+
   return (
     <ReactFlowProvider>
-      <div className="relative w-screen h-screen flex flex-col overflow-hidden selection:bg-[var(--glass-border)]">
+      <div className="relative w-screen h-screen flex overflow-hidden selection:bg-[var(--glass-border)]">
         {/* WebGL Liquid Glass Background */}
-        <LiquidGlassBackground themeId={bgThemeId} bgImage={bgImage} />
+        {!['light', 'dark', 'blueprint', 'brutalist'].includes(bgThemeId) && (
+          <div className="absolute inset-0 z-0 pointer-events-none">
+            <LiquidGlassBackground themeId={bgThemeId} bgImage={bgImage} />
+          </div>
+        )}
 
-        {/* Navbar */}
+        {/* Global Sidebar */}
+        {!isHome && (
+          <MainSidebar 
+            isCollapsed={mainSidebarCollapsed} 
+            onToggleCollapse={() => setMainSidebarCollapsed(!mainSidebarCollapsed)} 
+          />
+        )}
+
+        {/* Global Navbar */}
         <Navbar
           problemTitle={selectedProblem?.title}
           algorithmName={algorithmDef?.name}
@@ -470,188 +506,204 @@ function App() {
           overallProgress={getOverallProgress(problems)}
         />
 
-        {/* Main Content Area */}
-        <div className="flex flex-1 overflow-hidden" style={{ paddingTop: '56px' }}>
-          {/* Sidebar */}
-          <Sidebar
-            problems={problems}
-            customRuns={customRuns}
-            selectedProblem={selectedProblem}
-            selectedProblemId={selectedProblemId}
-            onSelectProblem={handleSelectProblem}
-            isCollapsed={sidebarCollapsed}
-            onToggleCollapse={() => setSidebarCollapsed(!sidebarCollapsed)}
-            completedProblems={completedProblems}
-            toggleCompleted={toggleCompleted}
-            getSectionProgress={getSectionProgress}
-          />
+        {/* Main Content Wrap */}
+        <div className="relative flex-1 flex flex-col overflow-hidden z-10 pt-14">
+          <Routes>
+            <Route path="/" element={<HomeView currentTheme={bgThemeId} onChangeTheme={handleChangeTheme} />} />
+            <Route path="/dashboard" element={<DashboardView />} />
+            <Route path="/visualizer/avl" element={<DataStructureView id="avl" />} />
+            <Route path="/visualizer/bst" element={<DataStructureView id="bst" />} />
+            <Route path="/visualizer/linked-list" element={<DataStructureView id="linked-list" />} />
+            <Route path="/visualizer/array" element={<DataStructureView id="array" />} />
+            <Route path="*" element={
+          <>
+            {/* Main Content Area */}
+            <div className="flex flex-1 overflow-hidden">
 
-          {/* Code Panel — resizable, glass-tracked */}
-          <div
-            className="flex-shrink-0 flex flex-col min-h-0"
-            data-glass-panel="code"
-            style={{ 
-              width: codePanelWidth, 
-              display: (selectedProblemId === 'import' && !customProblemData && viewMode === 'import') ? 'none' : 'flex' 
-            }}
-          >
-            {selectedProblemId === 'import' ? (
-              <AISolutionPanel customProblemData={customProblemData} themeId={bgThemeId} />
-            ) : (
-              <CodePanel
-                code={isArray ? (customProblemData.arrayData?.correctedCode || customProblemData.arrayData?.javaCode || '// Code') : (selectedProblem?.javaCode || '// Select a problem to view code')}
-                language={isArray ? (customProblemData.arrayData?.language?.toLowerCase() || 'java') : 'java'}
-                currentLine={currentLine}
-                currentStepDescription={activeAlgo.stepDescription}
-                lineExplanations={isArray ? (customProblemData.arrayData?.codeLines?.map(l => l.explain) || []) : []}
-                title={isArray ? (customProblemData.arrayData?.algorithmName || 'Analyzed Code') : (selectedProblem?.title || 'Algorithm Code')}
-                themeId={bgThemeId}
-              />
-            )}
-          </div>
 
-          {/* Resize handle */}
-          {!(selectedProblemId === 'import' && !customProblemData && viewMode === 'import') && (
-            <div
-              className="w-1.5 flex-shrink-0 cursor-col-resize group relative hover:bg-[var(--glass-fill)] transition-colors duration-150"
-              onMouseDown={handleResizeStart}
-              title="Drag to resize"
-            >
-              <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-black/[0.06] group-hover:bg-[var(--color-accent)] transition-colors duration-150" />
-            </div>
-          )}
-
-          {/* Graph Canvas or Import View or Grid Canvas */}
-          <div className="flex-1 flex flex-col relative min-w-0">
-            {viewMode === 'import' ? (
-              <DryRunView 
-                onLoadGraph={(data, debugInfo) => {
-                  if (data?.isArrayAnalysis) {
-                    const newRun = {
-                      id: `custom-array-${Date.now()}`,
-                      title: data.arrayData.algorithmName || 'Custom Array Analysis',
-                      algorithmType: 'arrayAnalysis',
-                      arrayData: data.arrayData
-                    };
-                    setCustomRuns(prev => [...prev, newRun]);
-                    setCustomProblemData(newRun);
-                    setSelectedProblemId(newRun.id);
-                    setViewMode('graph');
-                    return;
-                  }
-                  
-                  loadGraph(data);
-                  if (debugInfo) {
-                    setLayoutDebugInfo(debugInfo);
-                    if (debugInfo.problemHtml) setCustomProblemHtml(debugInfo.problemHtml);
-                  }
-                  setViewMode('graph');
-                  if (!isEditing) toggleEditing(); // enter edit mode to see what was imported
+              {/* Code Panel — resizable, glass-tracked */}
+              <div
+                className="flex-shrink-0 flex flex-col min-h-0"
+                data-glass-panel="code"
+                style={{ 
+                  width: codePanelWidth, 
+                  display: (isSandbox && !customProblemData) ? 'none' : 'flex' 
                 }}
-                currentGraphData={getGraphData}
-              />
-            ) : (
-              <>
-                {!isGrid && (
-                  <GraphEditorToolbar
-                    isEditing={isEditing}
-                    toggleEditing={toggleEditing}
-                    isDirected={isDirected}
-                    toggleDirected={toggleDirected}
-                    isWeighted={isWeighted}
-                    toggleWeighted={toggleWeighted}
-                    undo={undo}
-                    redo={redo}
-                    canUndo={canUndo}
-                    canRedo={canRedo}
-                    clearGraph={clearGraph}
-                    resetToPreset={handleResetToPreset}
-                    autoLayout={handleAutoLayout}
-                    nodeCount={nodeCount}
-                    edgeCount={edgeCount}
-                  />
-                )}
-
-                {isArray ? (
-                  <ArrayCanvas step={arrayAlgo.algorithmState} />
-                ) : isGrid ? (
-                  <GridCanvas grid={gridAlgo.currentGrid} />
+              >
+                {isSandbox ? (
+                  <AISolutionPanel customProblemData={customProblemData} themeId={bgThemeId} />
                 ) : (
-                  <GraphCanvas
-                    nodes={styledNodes}
-                    edges={styledEdges}
-                    onNodesChange={onNodesChange}
-                    onEdgesChange={onEdgesChange}
-                    onConnect={onConnect}
-                    isEditing={isEditing}
-                    isDirected={isDirected}
-                    isWeighted={isWeighted}
-                    addNodeAtPosition={addNodeAtPosition}
-                    removeNode={removeNode}
-                    removeEdge={removeEdge}
-                    onNodesDelete={onNodesDelete}
-                    onEdgesDelete={onEdgesDelete}
-                    editingEdgeId={editingEdgeId}
-                    updateEdgeWeight={updateEdgeWeight}
-                    startEditingEdge={startEditingEdge}
-                    cancelEditingEdge={cancelEditingEdge}
-                    renameNode={renameNode}
-                    isPlaying={isPlaying}
-                    onNodeDragStop={handleNodeDragStop}
+                  <CodePanel
+                    code={isArray ? (customProblemData.arrayData?.correctedCode || customProblemData.arrayData?.javaCode || '// Code') : (selectedProblem?.javaCode || '// Select a problem to view code')}
+                    language={isArray ? (customProblemData.arrayData?.language?.toLowerCase() || 'java') : 'java'}
+                    currentLine={currentLine}
+                    currentStepDescription={activeAlgo.stepDescription}
+                    lineExplanations={isArray ? (customProblemData.arrayData?.codeLines?.map(l => l.explain) || []) : []}
+                    title={isArray ? (customProblemData.arrayData?.algorithmName || 'Analyzed Code') : (selectedProblem?.title || 'Algorithm Code')}
+                    themeId={bgThemeId}
                   />
                 )}
+              </div>
 
-                {/* Layout Debug Panel Floating over canvas */}
-                {!isGrid && layoutDebugInfo && (
-                  <div className="absolute top-4 left-4 z-10 w-80">
-                    <LayoutDebugPanel 
-                      debugInfo={layoutDebugInfo} 
-                      onSwitchLayout={handleSwitchLayout}
+              {/* Resize handle */}
+              {!(isSandbox && !customProblemData) && (
+                <div
+                  className="w-1.5 flex-shrink-0 cursor-col-resize group relative hover:bg-[var(--glass-fill)] transition-colors duration-150"
+                  onMouseDown={handleResizeStart}
+                  title="Drag to resize"
+                >
+                  <div className="absolute inset-y-0 left-1/2 -translate-x-1/2 w-0.5 bg-black/[0.06] group-hover:bg-[var(--color-accent)] transition-colors duration-150" />
+                </div>
+              )}
+
+              {/* Graph Canvas or Import View or Grid Canvas */}
+              <div className="flex-1 flex flex-col relative min-w-0">
+                {isSandbox ? (
+                  <DryRunView 
+                    onLoadGraph={(data, debugInfo) => {
+                      if (data?.isArrayAnalysis) {
+                        const newRun = {
+                          id: `custom-array-${Date.now()}`,
+                          title: data.arrayData.algorithmName || 'Custom Array Analysis',
+                          algorithmType: 'arrayAnalysis',
+                          arrayData: data.arrayData
+                        };
+                        setCustomRuns(prev => [...prev, newRun]);
+                        setCustomProblemData(newRun);
+                        setSelectedProblemId(newRun.id);
+                        navigate('/visualizer/' + newRun.id);
+                        return;
+                      }
+                      
+                      loadGraph(data);
+                      if (debugInfo) {
+                        setLayoutDebugInfo(debugInfo);
+                        if (debugInfo.problemHtml) setCustomProblemHtml(debugInfo.problemHtml);
+                      }
+                      if (!isEditing) toggleEditing(); // enter edit mode to see what was imported
+                      
+                      // Create a custom run for graph
+                      const newRun = {
+                        id: `custom-graph-import-${Date.now()}`,
+                        title: 'Imported Graph',
+                        algorithmType: 'custom',
+                      };
+                      setCustomRuns(prev => [...prev, newRun]);
+                      setCustomProblemData(newRun);
+                      setSelectedProblemId(newRun.id);
+                      navigate('/visualizer/' + newRun.id);
+                    }}
+                    currentGraphData={getGraphData}
+                  />
+                ) : (
+                  <>
+                    {!isGrid && (
+                      <GraphEditorToolbar
+                        isEditing={isEditing}
+                        toggleEditing={toggleEditing}
+                        isDirected={isDirected}
+                        toggleDirected={toggleDirected}
+                        isWeighted={isWeighted}
+                        toggleWeighted={toggleWeighted}
+                        undo={undo}
+                        redo={redo}
+                        canUndo={canUndo}
+                        canRedo={canRedo}
+                        clearGraph={clearGraph}
+                        resetToPreset={handleResetToPreset}
+                        autoLayout={handleAutoLayout}
+                        nodeCount={nodeCount}
+                        edgeCount={edgeCount}
+                      />
+                    )}
+
+                    {isArray ? (
+                      <div className="flex-1 overflow-y-auto flex flex-col">
+                        <div className="flex-1 flex flex-col min-h-[350px]">
+                          <ArrayCanvas step={arrayAlgo.algorithmState} />
+                        </div>
+                        <AnalysisMetricsPanel analysisData={customProblemData?.arrayData} />
+                      </div>
+                    ) : isGrid ? (
+                      <GridCanvas grid={gridAlgo.currentGrid} />
+                    ) : (
+                      <GraphCanvas
+                        nodes={styledNodes}
+                        edges={styledEdges}
+                        onNodesChange={onNodesChange}
+                        onEdgesChange={onEdgesChange}
+                        onConnect={onConnect}
+                        isEditing={isEditing}
+                        isDirected={isDirected}
+                        isWeighted={isWeighted}
+                        addNodeAtPosition={addNodeAtPosition}
+                        removeNode={removeNode}
+                        removeEdge={removeEdge}
+                        onNodesDelete={onNodesDelete}
+                        onEdgesDelete={onEdgesDelete}
+                        editingEdgeId={editingEdgeId}
+                        updateEdgeWeight={updateEdgeWeight}
+                        startEditingEdge={startEditingEdge}
+                        cancelEditingEdge={cancelEditingEdge}
+                        renameNode={renameNode}
+                        isPlaying={isPlaying}
+                        onNodeDragStop={handleNodeDragStop}
+                      />
+                    )}
+
+
+
+                    {/* Controls Bar */}
+                    <ControlsBar
+                      isPlaying={isPlaying}
+                      onPlay={play}
+                      onPause={pause}
+                      onStepForward={stepForward}
+                      onStepBack={stepBack}
+                      onReset={handleReset}
+                      speed={speed}
+                      onSpeedChange={setSpeed}
+                      currentStep={currentStep}
+                      totalSteps={totalSteps}
+                      disabled={!algorithmDef || isEditing}
+                      onAISolve={selectedProblemId === 'import' && !customProblemData && customProblemHtml ? handleAISolve : null}
+                      isSolving={isAISolving}
                     />
-                  </div>
-                )}
 
-                {/* Controls Bar */}
-                <ControlsBar
-                  isPlaying={isPlaying}
-                  onPlay={play}
-                  onPause={pause}
-                  onStepForward={stepForward}
-                  onStepBack={stepBack}
-                  onReset={handleReset}
-                  speed={speed}
-                  onSpeedChange={setSpeed}
-                  currentStep={currentStep}
-                  totalSteps={totalSteps}
-                  disabled={!algorithmDef || isEditing}
-                  onAISolve={selectedProblemId === 'import' && !customProblemData && customProblemHtml ? handleAISolve : null}
-                  isSolving={isAISolving}
-                />
+                    {/* State Panel */}
+                    {!isArray && (
+                      <StatePanel
+                        algorithmState={activeAlgorithmState}
+                        stepDescription={activeAlgo.stepDescription}
+                        isExpanded={statePanelExpanded}
+                        onToggle={() => setStatePanelExpanded(!statePanelExpanded)}
+                      />
+                    )}
 
-                {/* State Panel */}
-                {!isArray && (
-                  <StatePanel
-                    algorithmState={activeAlgorithmState}
-                    stepDescription={activeAlgo.stepDescription}
-                    isExpanded={statePanelExpanded}
-                    onToggle={() => setStatePanelExpanded(!statePanelExpanded)}
-                  />
+                    {/* Dynamic State Visualizer */}
+                    {!isArray && (
+                      <StateVisualizer 
+                        algorithmState={activeAlgorithmState} 
+                        stateVariables={customProblemData?.stateVariables} 
+                      />
+                    )}
+                  </>
                 )}
-
-                {/* Dynamic State Visualizer */}
-                {!isArray && (
-                  <StateVisualizer 
-                    algorithmState={activeAlgorithmState} 
-                    stateVariables={customProblemData?.stateVariables} 
-                  />
-                )}
-              </>
-            )}
-          </div>
+              </div>
+            </div>
+          </>
+          } />
+        </Routes>
         </div>
       </div>
     </ReactFlowProvider>
   );
 }
 
-export default App;
+export default function App() {
+  return (
+    <Routes>
+      <Route path="/*" element={<AppLayout />} />
+    </Routes>
+  );
+}

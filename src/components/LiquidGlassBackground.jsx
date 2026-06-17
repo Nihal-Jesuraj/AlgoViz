@@ -99,7 +99,8 @@ export const THEMES = {
   },
   light: { isGraphisual: true },
   dark: { isGraphisual: true },
-  blueprint: { isGraphisual: true }
+  blueprint: { isGraphisual: true },
+  brutalist: { isGraphisual: true }
 };
 
 export const themeIds = Object.keys(THEMES);
@@ -158,7 +159,7 @@ export default function LiquidGlassBackground({ themeId = 'glass', bgImage = nul
   const rafRef = useRef(null);
 
   useEffect(() => {
-    if (['light', 'dark', 'blueprint'].includes(themeId)) return;
+    if (['light', 'dark', 'blueprint', 'brutalist'].includes(themeId)) return;
 
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -304,7 +305,7 @@ export default function LiquidGlassBackground({ themeId = 'glass', bgImage = nul
         width: '100vw',
         height: '100vh',
         zIndex: 0,
-        display: ['light', 'dark', 'blueprint'].includes(themeId) ? 'none' : 'block',
+        display: ['light', 'dark', 'blueprint', 'brutalist'].includes(themeId) ? 'none' : 'block',
         pointerEvents: 'none',
       }}
     />

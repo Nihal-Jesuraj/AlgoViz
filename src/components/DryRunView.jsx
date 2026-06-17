@@ -15,6 +15,52 @@ import { LayoutPersistenceService } from '../services/LayoutPersistenceService';
 
 import { AICodeAnalyzerService } from '../services/AICodeAnalyzerService';
 
+const DEMOS = {
+  remove_dup: {
+    label: "C++ Remove Duplicates",
+    code: `// C++ - Remove Duplicates from Sorted Array
+int removeDuplicates(vector<int>& nums) {
+    int count = 1;
+    for (int i = 1; i < nums.size(); i++) {
+        if (nums[i] != nums[i-1]) {
+            nums[count] = nums[i];
+            count++;
+        }
+    }
+    return count;
+}`
+  },
+  binary: {
+    label: "Python Binary Search",
+    code: `# Python - Binary Search
+def binary_search(arr, target):
+    left, right = 0, len(arr) - 1
+    while left <= right:
+        mid = (left + right) // 2
+        if arr[mid] == target:
+            return mid
+        elif arr[mid] < target:
+            left = mid + 1
+        else:
+            right = mid - 1
+    return -1`
+  },
+  two_sum: {
+    label: "JS Two Pointers",
+    code: `// JavaScript - Two Pointers
+function twoSum(arr, target) {
+    let left = 0, right = arr.length - 1;
+    while (left < right) {
+        let sum = arr[left] + arr[right];
+        if (sum === target) return [left, right];
+        else if (sum < target) left++;
+        else right--;
+    }
+    return [-1, -1];
+}`
+  }
+};
+
 export default function DryRunView({ onLoadGraph, currentGraphData }) {
   const [activeTab, setActiveTab] = useState('fetch');
   const [pasteInput, setPasteInput] = useState('');
@@ -219,7 +265,7 @@ export default function DryRunView({ onLoadGraph, currentGraphData }) {
       </div>
 
       <motion.div 
-        className="glass-panel w-full max-w-3xl bg-[#140F1E]/80 border border-white/10 rounded-2xl shadow-2xl flex flex-col min-h-[400px]"
+        className="glass-panel w-full max-w-3xl bg-[var(--color-surface)]/80 border border-white/10 rounded-2xl shadow-2xl flex flex-col min-h-[400px]"
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
       >
@@ -288,6 +334,20 @@ export default function DryRunView({ onLoadGraph, currentGraphData }) {
                 <h3 className="font-semibold text-[var(--color-text)] mb-1">Raw Code Dry Run</h3>
                 <p className="text-xs text-[var(--color-text-subtle)]">Paste your Array, Sorting, or Two Pointers code (C++, Java, Python, JS). We will use AI to perform a line-by-line step visualization.</p>
               </div>
+
+              <div className="flex flex-wrap gap-2 justify-center mt-2 mb-1">
+                <span className="text-[10px] text-[var(--color-text-subtle)] font-bold uppercase tracking-wide self-center mr-1">Try a demo:</span>
+                {Object.entries(DEMOS).map(([key, d]) => (
+                  <button 
+                    key={key} 
+                    onClick={() => setRawCodeInput(d.code)} 
+                    className="px-3 py-1.5 rounded-full border border-[var(--glass-border)] bg-[var(--glass-fill)] hover:bg-[var(--color-accent)] hover:text-white transition-colors text-xs font-medium text-[var(--color-text-muted)]"
+                  >
+                    {d.label}
+                  </button>
+                ))}
+              </div>
+
               <div className="flex flex-col gap-2 flex-1">
                 <textarea 
                   className="glass-input flex-1 !p-4 font-mono text-sm leading-relaxed bg-black/40 border-white/10"
