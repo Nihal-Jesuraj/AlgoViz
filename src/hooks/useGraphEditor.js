@@ -1,4 +1,4 @@
-import { useState, useCallback, useRef, useMemo } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { useNodesState, useEdgesState, addEdge as rfAddEdge } from '@xyflow/react';
 
 /**
@@ -111,36 +111,6 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
       setEdges((eds) => rfAddEdge(newEdge, eds));
     },
     [setEdges, isWeighted, pushHistory]
-  );
-
-  // ── Click-to-add-node ──
-
-  const onPaneClick = useCallback(
-    (event) => {
-      if (!isEditing) return;
-
-      // Get the React Flow pane position from the event
-      // The event target is the React Flow pane; we need viewport-relative coords
-      const reactFlowBounds = event.target.closest('.react-flow')?.getBoundingClientRect();
-      if (!reactFlowBounds) return;
-
-      pushHistory();
-
-      const newId = String(nextIdRef.current);
-      nextIdRef.current += 1;
-
-      // Position will be converted by React Flow's screenToFlowPosition in the component
-      const newNode = {
-        id: newId,
-        type: 'custom',
-        position: { x: 0, y: 0 }, // placeholder — overridden by GraphCanvas
-        data: { label: newId, status: 'default' },
-      };
-
-      setNodes((nds) => [...nds, newNode]);
-      return { nodeId: newId, event };
-    },
-    [isEditing, setNodes, pushHistory]
   );
 
   // Add a node at a specific flow position (called from GraphCanvas after coordinate conversion)
@@ -289,11 +259,13 @@ export function useGraphEditor(initialNodes = [], initialEdges = []) {
   const loadGraph = useCallback(
     (graphData) => {
       if (!graphData) return;
-      const { nodes: newNodes, edges: newEdges, directed, weighted } = graphData;
+      const { nodes: newNodes, edges: newEdges, directed, weighted, isDirected, isWeighted } = graphData;
+      const dir = directed ?? isDirected;
+      const wt = weighted ?? isWeighted;
       if (newNodes) {
         resetGraph(newNodes, newEdges || []);
-        if (directed !== undefined) setIsDirected(directed);
-        if (weighted !== undefined) setIsWeighted(weighted);
+        if (dir !== undefined) setIsDirected(dir);
+        if (wt !== undefined) setIsWeighted(wt);
       }
     },
     [resetGraph]

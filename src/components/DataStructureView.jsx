@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import GraphCanvas from './GraphCanvas';
 import { useAvlTree } from '../hooks/useAvlTree';
@@ -7,48 +7,7 @@ import { useLinkedList } from '../hooks/useLinkedList';
 import { useArray } from '../hooks/useArray';
 import { calculateTreeLayout, calculateLinkedListLayout } from '../utils/dataStructureLayout';
 import ArrayCanvas from './ArrayCanvas';
-
-function useGeneratorDriver() {
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [speed, setSpeed] = useState(1);
-  const [currentStepInfo, setCurrentStepInfo] = useState(null);
-  
-  const generatorRef = useRef(null);
-  const timeoutRef = useRef(null);
-
-  const playGenerator = (generatorFn) => {
-    generatorRef.current = generatorFn();
-    setIsPlaying(true);
-    setCurrentStepInfo(null);
-  };
-
-  const stop = () => {
-    setIsPlaying(false);
-    generatorRef.current = null;
-    clearTimeout(timeoutRef.current);
-    setCurrentStepInfo(null);
-  };
-
-  useEffect(() => {
-    if (isPlaying && generatorRef.current) {
-      const runStep = () => {
-        const { value, done } = generatorRef.current.next();
-        if (done) {
-          setIsPlaying(false);
-          generatorRef.current = null;
-          setCurrentStepInfo(null); // Clear message when done
-        } else {
-          setCurrentStepInfo(value);
-          timeoutRef.current = setTimeout(runStep, 1000 / speed);
-        }
-      };
-      timeoutRef.current = setTimeout(runStep, 1000 / speed);
-    }
-    return () => clearTimeout(timeoutRef.current);
-  }, [isPlaying, speed]);
-
-  return { isPlaying, speed, setSpeed, currentStepInfo, playGenerator, stop };
-}
+import useGeneratorDriver from '../hooks/useGeneratorDriver';
 
 export default function DataStructureView({ id: propId }) {
   const params = useParams();
@@ -111,7 +70,7 @@ export default function DataStructureView({ id: propId }) {
   return (
     <div className="flex flex-col h-full w-full relative z-10 pt-14">
       <div className="glass-panel mx-4 mt-4 mb-2 p-4 flex flex-wrap gap-4 items-center z-20 shrink-0">
-        <h2 className="text-xl font-bold text-white uppercase tracking-wider mr-4" style={{ fontFamily: "'Bebas Neue', sans-serif" }}>
+        <h2 className="font-heading text-xl font-bold uppercase tracking-wider mr-4" style={{ fontFamily: "'Bebas Neue', sans-serif", color: 'var(--color-text)' }}>
           {id.replace('-', ' ')}
         </h2>
         
@@ -171,7 +130,7 @@ export default function DataStructureView({ id: propId }) {
         )}
         
         {(driver.currentStepInfo?.message || driver.currentStepInfo?.description) && (
-          <span className="ml-auto text-[#a3e635] font-mono text-sm border border-[#a3e635]/30 bg-[#a3e635]/10 px-3 py-1 rounded">
+          <span className="ml-auto font-mono text-sm px-3 py-1 rounded" style={{ color: 'var(--color-text)', border: '1px solid color-mix(in srgb, var(--color-accent) 30%, transparent)', background: 'color-mix(in srgb, var(--color-accent) 10%, transparent)' }}>
             {driver.currentStepInfo.message || driver.currentStepInfo.description}
           </span>
         )}

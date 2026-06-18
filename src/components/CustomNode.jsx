@@ -1,4 +1,4 @@
-import React, { memo } from 'react';
+import { memo } from 'react';
 import { Handle, Position } from '@xyflow/react';
 
 const statusClassMap = {
@@ -28,9 +28,8 @@ function CustomNode({ data, id }) {
 
       {/* Node circle */}
       <div
-        className={`graph-node ${statusClass} ${
-          isMst ? '!border-[3px] !border-accent-teal-dark' : ''
-        } ${isEditing ? 'hover:shadow-glass-elevated cursor-pointer' : ''} relative z-10`}
+        className={`graph-node ${statusClass} ${isEditing ? 'hover:shadow-glass-elevated cursor-pointer' : ''} relative z-10`}
+        style={isMst ? { border: '3px solid var(--color-teal)' } : undefined}
       >
         <span className="font-heading font-semibold text-[15px] leading-none">
           {data?.label ?? id}

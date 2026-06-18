@@ -2,8 +2,6 @@
  * Manages caching and restoration of graph layouts to ensure
  * instantaneous reloads for previously seen graphs and user customizations.
  */
-import { GraphFingerprintService } from './GraphFingerprintService';
-
 export class LayoutPersistenceService {
   /**
    * Check for a previously saved USER layout by problem URL/ID.

@@ -1,3 +1,4 @@
+/// <reference types="vitest" />
 import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import { Buffer } from 'node:buffer';
@@ -47,7 +48,7 @@ const scraperProxyPlugin = () => ({
               body: JSON.stringify({
                 operationName: 'questionData',
                 variables: { titleSlug },
-                query: 'query questionData($titleSlug: String!) { question(titleSlug: $titleSlug) { content } }'
+                query: 'query questionData($titleSlug: String!) { question(titleSlug: $titleSlug) { content codeDefinition sampleTestCase } }'
               })
             });
           }
@@ -72,6 +73,20 @@ const scraperProxyPlugin = () => ({
         if (isLeetCode && response.headers.get('content-type')?.includes('application/json')) {
           const json = await response.json();
           html = json?.data?.question?.content || '';
+          const codeDef = json?.data?.question?.codeDefinition;
+          if (codeDef) {
+            try {
+              const parsed = JSON.parse(codeDef);
+              const javaDef = parsed.find(d => /java/i.test(d.text || d.value || ''));
+              if (javaDef) {
+                html += `\n<script>var codeDefinition = [${JSON.stringify(javaDef)}];</script>\n`;
+              } else {
+                html += `\n<script>var codeDefinition = ${codeDef};</script>\n`;
+              }
+            } catch (e) {
+              html += `\n<script>var codeDefinition = ${codeDef};</script>\n`;
+            }
+          }
         } else {
           html = await response.text();
         }
@@ -167,10 +182,54 @@ const scraperProxyPlugin = () => ({
         }
       });
     });
+
+    server.middlewares.use('/api/groq', async (req, res) => {
+      if (req.method !== 'POST') {
+        res.statusCode = 405;
+        return res.end(JSON.stringify({ error: 'Method not allowed' }));
+      }
+      let body = '';
+      req.on('data', chunk => { body += chunk.toString(); });
+      req.on('end', async () => {
+        try {
+          const { prompt, apiKey, model } = JSON.parse(body);
+          if (!apiKey) throw new Error('Missing API Key');
+          const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey}`,
+            },
+            body: JSON.stringify({
+              model: model || 'llama-3.3-70b-versatile',
+              messages: [{ role: 'user', content: prompt }],
+              response_format: { type: 'json_object' },
+              temperature: 0.3,
+            }),
+          });
+          if (!response.ok) {
+            const errText = await response.text();
+            throw new Error(`Groq API Error: ${response.status} ${errText}`);
+          }
+          const data = await response.json();
+          const text = data.choices?.[0]?.message?.content || '{}';
+          res.setHeader('Content-Type', 'application/json');
+          res.end(JSON.stringify({ text }));
+        } catch (e) {
+          console.error('Groq proxy error:', e);
+          res.statusCode = 500;
+          res.end(JSON.stringify({ error: e.message }));
+        }
+      });
+    });
   }
 });
 
 // https://vite.dev/config/
 export default defineConfig({
   plugins: [react(), scraperProxyPlugin()],
+  test: {
+    environment: 'node',
+    include: ['src/**/*.test.js'],
+  },
 });

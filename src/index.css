@@ -23,7 +23,7 @@
   --color-purple-light: #A78BFA;
   --color-purple-lighter: #DDD6FE;
   --color-purple-glow: rgba(var(--color-highlight-rgb), 0.15);
-  --color-highlight-rgb: var(--color-highlight-rgb);
+  --color-highlight-rgb: 139, 92, 246;
   --color-bg-dots: rgba(255, 255, 255, 0.15);
 
   --color-teal: #10B981;
@@ -764,6 +764,22 @@ html[data-theme="light"] {
   --color-purple-glow: rgba(212, 255, 0, 0.25);
   --color-highlight-rgb: 212, 255, 0;
   --color-bg-dots: rgba(0, 0, 0, 0.1);
+
+  --color-amber: #D97706;
+  --color-teal: #059669;
+  --color-teal-light: #10B981;
+  --color-cyan: #0891B2;
+
+  --edge-filter-active: drop-shadow(0 0 8px rgba(212, 255, 0, 0.6)) drop-shadow(0 0 16px rgba(212, 255, 0, 0.4));
+  --edge-filter-visited: drop-shadow(0 0 6px rgba(5, 150, 105, 0.4));
+  --edge-filter-in-path: drop-shadow(0 0 10px rgba(212, 255, 0, 0.6));
+  --edge-filter-in-mst: drop-shadow(0 0 6px rgba(5, 150, 105, 0.4));
+
+  .state-badge.badge-current {
+    background: #ffffff;
+    color: #000000;
+    border: 1px solid #D4FF00;
+  }
 }
 
 /* === GRAPHISUAL: DARK === */
@@ -794,6 +810,11 @@ html[data-theme="dark"] {
   --color-purple-glow: rgba(107, 201, 107, 0.15);
   --color-highlight-rgb: 107, 201, 107;
   --color-bg-dots: rgba(255, 255, 255, 0.15);
+
+  --edge-filter-active: drop-shadow(0 0 8px rgba(167, 139, 250, 0.8)) drop-shadow(0 0 16px rgba(139, 92, 246, 0.6));
+  --edge-filter-visited: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
+  --edge-filter-in-path: drop-shadow(0 0 10px rgba(16, 185, 129, 0.8));
+  --edge-filter-in-mst: drop-shadow(0 0 6px rgba(16, 185, 129, 0.5));
 }
 
 /* === GRAPHISUAL: BLUEPRINT === */
@@ -824,6 +845,11 @@ html[data-theme="blueprint"] {
   --color-purple-glow: rgba(144, 216, 240, 0.15);
   --color-highlight-rgb: 144, 216, 240;
   --color-bg-dots: rgba(255, 255, 255, 0.15);
+
+  --edge-filter-active: drop-shadow(0 0 8px rgba(144, 216, 240, 0.8)) drop-shadow(0 0 16px rgba(144, 216, 240, 0.6));
+  --edge-filter-visited: drop-shadow(0 0 6px rgba(96, 216, 200, 0.5));
+  --edge-filter-in-path: drop-shadow(0 0 10px rgba(240, 192, 80, 0.8));
+  --edge-filter-in-mst: drop-shadow(0 0 6px rgba(96, 216, 200, 0.5));
 }
 
 /* === GRAPHISUAL: BRUTALIST === */
@@ -855,7 +881,12 @@ html[data-theme="brutalist"] {
   --color-purple-glow: rgba(163, 230, 53, 0.15);
   --color-highlight-rgb: 163, 230, 53;
   --color-bg-dots: rgba(163, 230, 53, 0.3);
-  --color-node-bg: rgba(163, 230, 53, 0.05); /* Decreased opacity for clearer glass */
+  --color-node-bg: rgba(163, 230, 53, 0.05);
+
+  --edge-filter-active: drop-shadow(0 0 8px rgba(163, 230, 53, 0.8)) drop-shadow(0 0 16px rgba(163, 230, 53, 0.6));
+  --edge-filter-visited: drop-shadow(0 0 6px rgba(77, 124, 15, 0.5));
+  --edge-filter-in-path: drop-shadow(0 0 10px rgba(163, 230, 53, 0.8));
+  --edge-filter-in-mst: drop-shadow(0 0 6px rgba(77, 124, 15, 0.5));
 }
 
 /* Neon Orange Overrides for Brutalist Theme */
@@ -944,15 +975,22 @@ html[data-theme] .graph-node.node-visited {
 
 html[data-theme] .graph-node.node-current {
   border-color: var(--color-accent) !important;
-  background: rgba(43, 107, 43, 0.15) !important;
+  background: rgba(var(--color-highlight-rgb), 0.15) !important;
   border-width: 3px !important;
   transform: scale(1.15) !important;
-  box-shadow: 0 0 20px rgba(43, 107, 43, 0.3) !important;
+  box-shadow: 0 0 20px rgba(var(--color-highlight-rgb), 0.3) !important;
   animation: glass-glow-pulse 2s ease-in-out infinite !important;
 }
 
 html[data-theme] .graph-node.node-current::after {
-  border-color: rgba(43, 107, 43, 0.4) !important;
+  border-color: rgba(var(--color-highlight-rgb), 0.4) !important;
+}
+
+html[data-theme] .graph-node.node-in-mst {
+  border-color: var(--color-teal) !important;
+  background: rgba(var(--color-highlight-rgb), 0.1) !important;
+  border-width: 3px !important;
+  box-shadow: var(--shadow-raised) !important;
 }
 
 html[data-theme] .graph-node.node-queued {
@@ -991,10 +1029,11 @@ html[data-theme] .react-flow__edge-path.edge-default {
   filter: none !important;
 }
 
-html[data-theme] .react-flow__edge-path.edge-visited { stroke: var(--color-edge-visited) !important; stroke-width: 3 !important; }
+html[data-theme] .react-flow__edge-path.edge-visited { stroke: var(--color-edge-visited) !important; stroke-width: 3 !important; filter: var(--edge-filter-visited) !important; }
 html[data-theme] .react-flow__edge-path.edge-current,
-html[data-theme] .react-flow__edge-path.edge-active { stroke: var(--color-edge-current) !important; stroke-width: 3 !important; }
-html[data-theme] .react-flow__edge-path.edge-in-path { stroke: var(--color-edge-path) !important; stroke-width: 4 !important; }
+html[data-theme] .react-flow__edge-path.edge-active { stroke: var(--color-edge-current) !important; stroke-width: 3 !important; filter: var(--edge-filter-active) !important; }
+html[data-theme] .react-flow__edge-path.edge-in-path { stroke: var(--color-edge-path) !important; stroke-width: 4 !important; filter: var(--edge-filter-in-path) !important; }
+html[data-theme] .react-flow__edge-path.edge-in-mst { stroke: var(--color-teal) !important; stroke-width: 3.5 !important; stroke-dasharray: 6 3 !important; filter: var(--edge-filter-in-mst) !important; }
 
 /* Grid Cell Overrides */
 html[data-theme] .grid-cell {

@@ -1,7 +1,9 @@
-import React from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
+import { AnimatePresence, motion } from 'framer-motion';
+import { useVisualizer } from '../contexts/VisualizerContext';
 
-export default function StateVisualizer({ algorithmState, stateVariables = [] }) {
+export default function StateVisualizer() {
+  const { activeAlgorithmState: algorithmState, customProblemData } = useVisualizer();
+  const stateVariables = customProblemData?.stateVariables || [];
   if (!algorithmState || Object.keys(algorithmState).length === 0) return null;
 
   // Render values based on their type
@@ -46,7 +48,7 @@ export default function StateVisualizer({ algorithmState, stateVariables = [] })
             <span className="text-[var(--color-text-subtle)] text-xs italic">empty</span>
           ) : (
             entries.map(([k, v]) => (
-              <div key={`${key}-${k}`} className="flex items-center text-[10px] font-mono bg-black/5 rounded border border-[var(--glass-border)] overflow-hidden">
+              <div key={`${key}-${k}`} className="flex items-center text-[10px] font-mono rounded overflow-hidden" style={{ background: 'var(--glass-fill)', border: '1px solid var(--glass-border)' }}>
                 <span className="px-1.5 py-0.5 bg-[var(--glass-border)] text-[var(--color-text-muted)]">{k}</span>
                 <span className="px-1.5 py-0.5 text-[var(--color-purple)] font-semibold">{v === Infinity ? '∞' : (typeof v === 'boolean' ? (v ? 'true' : 'false') : v)}</span>
               </div>
@@ -68,7 +70,7 @@ export default function StateVisualizer({ algorithmState, stateVariables = [] })
   if (keysToRender.length === 0) return null;
 
   return (
-    <div className="absolute right-4 bottom-24 z-10 w-72 flex flex-col gap-2 pointer-events-none">
+    <div className="absolute right-4 bottom-28 z-10 w-80 flex flex-col gap-2 pointer-events-none">
       {keysToRender.map(key => (
         <motion.div 
           key={key}
@@ -76,7 +78,7 @@ export default function StateVisualizer({ algorithmState, stateVariables = [] })
           initial={{ opacity: 0, x: 20 }}
           animate={{ opacity: 1, x: 0 }}
         >
-          <div className="text-[10px] font-bold text-[var(--color-text-subtle)] uppercase tracking-wider mb-1.5">{key}</div>
+          <div className="font-heading text-[10px] font-semibold uppercase tracking-wider text-[var(--color-text-subtle)] mb-1.5">{key}</div>
           {renderValue(key, algorithmState[key])}
         </motion.div>
       ))}

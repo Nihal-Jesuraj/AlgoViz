@@ -1,4 +1,4 @@
-import React, { memo, useRef } from 'react';
+import { memo } from 'react';
 import { motion } from 'framer-motion';
 import { Network, GitGraph, Palette } from 'lucide-react';
 
@@ -8,22 +8,10 @@ function Navbar({
   problemTitle = 'DSA Algorithm Visualizer', 
   showTitle = false,
   sidebarWidth = 0,
-  algorithmName = '', 
   currentTheme = 'apple',
-  onChangeTheme, 
-  onImageUpload,
+  onChangeTheme,
   overallProgress = { completed: 0, total: 0, percentage: 0 }
 }) {
-  const fileInputRef = useRef(null);
-
-  const handleImageChange = (e) => {
-    const file = e.target.files?.[0];
-    if (file && onImageUpload) {
-      onImageUpload(file);
-    }
-    // Reset input so the same file can be selected again if needed
-    e.target.value = '';
-  };
   return (
     <motion.nav
       id="navbar"
@@ -84,6 +72,7 @@ function Navbar({
               value={currentTheme}
               onChange={(e) => onChangeTheme(e.target.value)}
               className="glass-button !py-1.5 !pl-3 !pr-8 appearance-none outline-none font-medium text-xs cursor-pointer"
+              aria-label="Select theme"
             >
               <option value="glass">Theme: Glass</option>
               <option value="cyberpunk">Theme: Cyberpunk</option>

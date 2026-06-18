@@ -1,6 +1,5 @@
-import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Layers, ArrowLeftSquare, List, Binary, Network, Database, Hash } from 'lucide-react';
+import { List, Binary, Network, Hash } from 'lucide-react';
 
 const structures = [
   { id: 'array', title: 'Array', description: 'Contiguous memory allocation.', icon: Hash },

@@ -1,4 +1,4 @@
-import React, { useRef, useEffect } from 'react';
+import { useRef, useEffect } from 'react';
 
 export default function InteractiveHeroGraph({ 
   density = 12000, 
@@ -41,14 +41,19 @@ export default function InteractiveHeroGraph({
       });
     }
 
+    const resolveColor = (color, fallback) => {
+      if (!color) return fallback;
+      const match = color.match(/^var\((--[\w-]+)\)$/);
+      if (match) {
+        return getComputedStyle(document.documentElement).getPropertyValue(match[1]).trim() || fallback;
+      }
+      return color;
+    };
+
     const updateColors = () => {
-      const getThemeColor = (name) => {
-        const val = getComputedStyle(document.documentElement).getPropertyValue(`--color-${name}`);
-        return val ? val.trim() : (name === 'accent' ? '#8b5cf6' : '#14b8a6');
-      };
       colorsRef.current = {
-        accent: overrideAccent || getThemeColor('accent'),
-        secondary: overrideSecondary || getThemeColor('teal')
+        accent: resolveColor(overrideAccent, '#8b5cf6'),
+        secondary: resolveColor(overrideSecondary, '#14b8a6')
       };
     };
 

@@ -10,7 +10,7 @@
  */
 export function* primsGenerator(graph, startNode) {
   const nodes = Object.keys(graph);
-  const V = nodes.length;
+  const _V = nodes.length;
 
   const inMST = new Set();
   let pq = []; // Each entry: { weight, node, parent }

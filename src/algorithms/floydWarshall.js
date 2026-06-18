@@ -3,7 +3,6 @@
  */
 export function* floydWarshallGenerator(graph, _startNode) {
   const nodes = Object.keys(graph);
-  const n = nodes.length;
   const INF = Infinity;
 
   // Build distance matrix

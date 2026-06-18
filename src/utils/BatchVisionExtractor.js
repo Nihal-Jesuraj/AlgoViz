@@ -100,4 +100,6 @@ export class BatchVisionExtractor {
 }
 
 // Make it globally accessible for dev tools
-window.runBatchVisionExtraction = BatchVisionExtractor.runBatchExtraction;
+if (import.meta.env.DEV) {
+  window.runBatchVisionExtraction = BatchVisionExtractor.runBatchExtraction;
+}

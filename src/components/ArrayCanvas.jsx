@@ -1,5 +1,3 @@
-import React from 'react';
-
 const COLORS = {
   active:     { bg: "rgba(var(--color-highlight-rgb), 0.2)", border: "var(--color-accent)", text: "var(--color-text)" },
   secondary:  { bg: "rgba(245, 158, 11, 0.2)", border: "var(--color-amber, #F59E0B)", text: "var(--color-text)" },
@@ -83,7 +81,7 @@ export default function ArrayCanvas({ step }) {
       {/* Legend & What's happening */}
       <div className="w-full max-w-3xl mt-8 grid grid-cols-1 md:grid-cols-2 gap-6">
         <div className="p-4 bg-[var(--color-surface-hover)] rounded-xl border border-[var(--color-node-stroke)]">
-          <div className="text-[10px] font-bold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Color Legend</div>
+            <div className="font-heading text-[10px] font-semibold text-[var(--color-text-muted)] uppercase tracking-wider mb-3">Color Legend</div>
           <div className="flex flex-wrap gap-4">
             {Object.entries(COLORS).map(([label, style]) => {
               if (label === 'idle') return null;
@@ -98,7 +96,7 @@ export default function ArrayCanvas({ step }) {
         </div>
 
         <div className="p-4 bg-[var(--color-accent)]/10 rounded-xl border border-[var(--color-accent)]/20 shadow-sm flex flex-col justify-center">
-          <div className="text-[10px] font-bold text-[var(--color-accent)] uppercase tracking-wider mb-2">What is happening</div>
+            <div className="font-heading text-[10px] font-semibold text-[var(--color-accent)] uppercase tracking-wider mb-2">What is happening</div>
           <p className="m-0 text-sm font-medium text-[var(--color-text)] leading-relaxed">
             {parseMessageText(step.msg)}
           </p>
@@ -108,12 +106,12 @@ export default function ArrayCanvas({ step }) {
       {/* State Variables Row */}
       <div className="w-full max-w-3xl mt-4 grid grid-cols-2 md:grid-cols-4 gap-4">
         {step.pointers && Object.keys(step.pointers).length > 0 && (
-          <div className="p-3 bg-black/5 rounded-xl border border-black/5 shadow-sm">
-            <div className="text-[9px] font-bold text-[var(--color-text-subtle)] uppercase tracking-widest mb-1.5">Pointers</div>
+          <div className="p-3 rounded-xl shadow-sm" style={{ background: 'var(--glass-fill)', border: '1px solid var(--glass-border)' }}>
+                <div className="font-heading text-[9px] font-semibold text-[var(--color-text-subtle)] uppercase tracking-wider mb-1.5">Pointers</div>
             <div className="flex flex-wrap gap-2">
               {Object.entries(step.pointers).map(([idx, name]) => (
-                <div key={idx} className="text-xs font-mono font-medium text-[var(--color-text)] bg-white/50 dark:bg-black/20 px-2 py-1 rounded shadow-sm">
-                  <span className="text-blue-500">{name}</span>: {idx}
+                <div key={idx} className="text-xs font-mono font-medium text-[var(--color-text)] px-2 py-1 rounded shadow-sm" style={{ background: 'var(--glass-fill)' }}>
+                  <span style={{ color: 'var(--color-cyan)' }}>{name}</span>: {idx}
                 </div>
               ))}
             </div>
@@ -121,23 +119,23 @@ export default function ArrayCanvas({ step }) {
         )}
         
         {step.highlight?.length > 0 && (
-          <div className="p-3 bg-blue-500/5 rounded-xl border border-blue-500/10 shadow-sm">
-            <div className="text-[9px] font-bold text-blue-500/70 uppercase tracking-widest mb-1.5">Highlight</div>
-            <div className="font-mono text-xs text-blue-600 dark:text-blue-400 font-medium tracking-wide">[{step.highlight.join(', ')}]</div>
+          <div className="p-3 rounded-xl shadow-sm" style={{ background: 'var(--glass-fill)', border: '1px solid var(--glass-border)' }}>
+            <div className="font-heading text-[9px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-cyan)' }}>Highlight</div>
+            <div className="font-mono text-xs font-medium tracking-wide" style={{ color: 'var(--color-text)' }}>[{step.highlight.join(', ')}]</div>
           </div>
         )}
 
         {step.secondary?.length > 0 && (
-          <div className="p-3 bg-amber-500/5 rounded-xl border border-amber-500/10 shadow-sm">
-            <div className="text-[9px] font-bold text-amber-600/70 uppercase tracking-widest mb-1.5">Secondary</div>
-            <div className="font-mono text-xs text-amber-700 dark:text-amber-500 font-medium tracking-wide">[{step.secondary.join(', ')}]</div>
+          <div className="p-3 rounded-xl shadow-sm" style={{ background: 'var(--glass-fill)', border: '1px solid var(--glass-border)' }}>
+            <div className="font-heading text-[9px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-amber)' }}>Secondary</div>
+            <div className="font-mono text-xs font-medium tracking-wide" style={{ color: 'var(--color-text)' }}>[{step.secondary.join(', ')}]</div>
           </div>
         )}
         
         {step.swap?.length > 0 && (
-          <div className="p-3 bg-purple-500/5 rounded-xl border border-purple-500/10 shadow-sm">
-            <div className="text-[9px] font-bold text-purple-600/70 uppercase tracking-widest mb-1.5">Swap</div>
-            <div className="font-mono text-xs text-purple-700 dark:text-purple-400 font-medium tracking-wide">[{step.swap.join(', ')}]</div>
+          <div className="p-3 rounded-xl shadow-sm" style={{ background: 'var(--glass-fill)', border: '1px solid var(--glass-border)' }}>
+            <div className="font-heading text-[9px] font-semibold uppercase tracking-wider mb-1.5" style={{ color: 'var(--color-purple)' }}>Swap</div>
+            <div className="font-mono text-xs font-medium tracking-wide" style={{ color: 'var(--color-text)' }}>[{step.swap.join(', ')}]</div>
           </div>
         )}
       </div>
